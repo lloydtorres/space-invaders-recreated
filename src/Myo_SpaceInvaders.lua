@@ -11,23 +11,18 @@ fistMade = false
 referenceRoll = myo.getRoll()
 currentRoll = referenceRoll
 
-UNLOCKED_TIMEOUT = 10000
-
 -- Effects
 
 function moveRight()
 	myo.keyboard("right_arrow","down")
-    myo.debug(myo.getArm().."goRIGHT")
 end
 
 function moveLeft()
 	myo.keyboard("left_arrow","down")
-    myo.debug(myo.getArm().."goLEFT")
 end
 
 function fire()
-	myo.keyboard("space","press")
-    myo.debug("FIRE")
+	myo.keyboard("space","down")
 end
 
 -- Helpers
@@ -35,7 +30,7 @@ end
 function letItGo()
     myo.keyboard("right_arrow","up")
     myo.keyboard("left_arrow","up")
-    myo.debug("stopMOVING")
+    myo.keyboard("space","up")
 end
 
 function resetFist()
@@ -55,17 +50,6 @@ function conditionallySwapWave(pose)
     return pose
 end
 
--- Unlock mechanism
-
-function unlock()
-    unlocked = true
-    extendUnlock()
-end
-
-function extendUnlock()
-    unlockedSince = myo.getTimeMilliseconds()
-end
-
 -- Callbacks
 
 function onPoseEdge(pose, edge)
@@ -74,16 +58,28 @@ function onPoseEdge(pose, edge)
     pose = conditionallySwapWave(pose)
 
     if pose == "thumbToPinky" then
-        if edge == "off" then
-            -- Unlock when pose is released in case the user holds it for a while.
-            unlock()
-        elseif edge == "on" and not unlocked then
-            -- Vibrate twice on unlock.
-            -- We do this when the pose is made for better feedback.
-            myo.vibrate("short")
-            myo.vibrate("short")
-            myo.vibrate("short")
-            extendUnlock()
+        if not unlocked then
+            if edge == "off" then
+                -- Unlock when pose is released in case the user holds it for a while.
+                unlocked = true
+            elseif edge == "on" and not unlocked then
+                -- Vibrate twice on unlock.
+                -- We do this when the pose is made for better feedback.
+                myo.vibrate("short")
+                myo.vibrate("short")
+                myo.vibrate("short")
+            end
+        elseif unlocked then
+            if edge == "off" then
+                -- Unlock when pose is released in case the user holds it for a while.
+                unlocked = false
+            elseif edge == "on" and not unlocked then
+                -- Vibrate twice on unlock.
+                -- We do this when the pose is made for better feedback.
+                myo.vibrate("short")
+                myo.vibrate("short")
+                myo.vibrate("short")
+            end
         end
     end
 
@@ -91,17 +87,13 @@ function onPoseEdge(pose, edge)
     if unlocked and edge == "on" then
 
         if pose == "fingersSpread" then
-            extendUnlock()
             fire()
             myo.vibrate("short")
         elseif pose == "waveOut" then
-            extendUnlock()
             moveRight()
         elseif pose == "waveIn" then
-            extendUnlock()
             moveLeft()
         elseif pose == "fist" and not fistMade then
-            extendUnlock()
             referenceRoll = myo.getRoll()
             fistMade = true
             if myo.getXDirection() == "towardElbow" then
@@ -109,7 +101,7 @@ function onPoseEdge(pose, edge)
             end
         end
 
-        if pose ~= "fist" and pose ~= "waveIn" and pose ~= "waveOut" then
+        if pose ~= "fist" and pose ~= "waveIn" and pose ~= "waveOut" and pose ~= "fingersSpread" then
             resetFist()
             letItGo()
         end
@@ -124,19 +116,7 @@ function onPeriodic()
         currentRoll = currentRoll * -1
     end
 
-    if unlocked then
-        -- If we've been unlocked longer than the timeout period, lock.
-        -- Activity will update unlockedSince, see extendUnlock() above.
-        if myo.getTimeMilliseconds() - unlockedSince > UNLOCKED_TIMEOUT then
-            unlocked = false
-            myo.vibrate("short")
-            myo.vibrate("short")
-            myo.vibrate("short")
-        end
-    end
-
     if unlocked and fistMade then
-        extendUnlock()
         subtractive = currentRoll - referenceRoll
         if subtractive > 0.2 then
             moveRight()

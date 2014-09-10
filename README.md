@@ -13,3 +13,4 @@ Space Invaders is copyrighted by Taito Corporation. This code is provided by me 
 * **1.0** - February 2013 - Initial version.
 * **1.1** - July 2014 - Refactoring and some improvements.
 * **1.2** - September 2014 - Added rudimentary Myo support through a Lua script.
+* **1.2.1** - September 2014 - Fixed some issues with the Lua script.
