@@ -7,10 +7,6 @@ scriptId = 'es.lloydtorr.spaceinvaders'
 
 unlocked = false
 
-fistMade = false -- Flags for holding fist
-referenceRoll = myo.getRoll()
-currentRoll = referenceRoll
-
 -- Effects
 
 function moveRight()
@@ -33,12 +29,6 @@ function letItGo() -- Resets keys to normal state
     myo.keyboard("space","up")
 end
 
-function resetFist()
-    fistMade = false
-    referenceRoll = myo.getRoll()
-    currentRoll = referenceRoll
-end
-
 function conditionallySwapWave(pose) -- Changes waveIn/waveOut to be waveLeft/waveRight instead
     if myo.getArm() == "left" then
         if pose == "waveIn" then
@@ -57,6 +47,7 @@ function onPoseEdge(pose, edge)
     pose = conditionallySwapWave(pose)
 
     if pose == "thumbToPinky" then
+
         if not unlocked then -- Unlock
             if edge == "off" then
                 unlocked = true
@@ -70,55 +61,30 @@ function onPoseEdge(pose, edge)
                 myo.vibrate("medium")
             end
         end
+        
     end
 
     -- Other gestures
     if unlocked and edge == "on" then
 
-        if pose == "fingersSpread" then
+        if pose == "fist" then
             fire()
             myo.vibrate("short")
         elseif pose == "waveOut" then
             moveRight()
         elseif pose == "waveIn" then
             moveLeft()
-        elseif pose == "fist" and not fistMade then -- Sets up fist movement
-            referenceRoll = myo.getRoll()
-            fistMade = true
-            if myo.getXDirection() == "towardElbow" then -- Adjusts for Myo orientation
-                referenceRoll = referenceRoll * -1
-            end
-        end
-
-        -- Reset calls
-
-        if pose ~= "waveIn" and pose ~= "waveOut" and pose ~= "fingersSpread" then
-            letItGo()
-        end
-
-        if pose ~= "fist" then
-            resetFist()
         end
 
     end
+
+    if edge == "off" then
+        letItGo()
+    end
+
 end
 
 function onPeriodic()
-
-    currentRoll = myo.getRoll()
-    if myo.getXDirection() == "towardElbow" then -- Adjusts for Myo orientation
-        currentRoll = currentRoll * -1
-    end
-
-    if unlocked and fistMade then -- Moves ship when fist is held and Myo is rotated
-        subtractive = currentRoll - referenceRoll
-        if subtractive > 0.2 then
-            moveRight()
-        elseif subtractive < -0.2 then
-            moveLeft()
-        end
-    end
-
 end
 
 function onForegroundWindowChange(app, title)
