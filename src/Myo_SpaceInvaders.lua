@@ -7,7 +7,7 @@ scriptId = 'es.lloydtorr.spaceinvaders'
 
 unlocked = false
 
-fistMade = false
+fistMade = false -- Flags for holding fist
 referenceRoll = myo.getRoll()
 currentRoll = referenceRoll
 
@@ -27,7 +27,7 @@ end
 
 -- Helpers
 
-function letItGo()
+function letItGo() -- Resets keys to normal state
     myo.keyboard("right_arrow","up")
     myo.keyboard("left_arrow","up")
     myo.keyboard("space","up")
@@ -39,7 +39,7 @@ function resetFist()
     currentRoll = referenceRoll
 end
 
-function conditionallySwapWave(pose)
+function conditionallySwapWave(pose) -- Changes waveIn/waveOut to be waveLeft/waveRight instead
     if myo.getArm() == "left" then
         if pose == "waveIn" then
             pose = "waveOut"
@@ -54,31 +54,20 @@ end
 
 function onPoseEdge(pose, edge)
 
-    -- Unlock
     pose = conditionallySwapWave(pose)
 
     if pose == "thumbToPinky" then
-        if not unlocked then
+        if not unlocked then -- Unlock
             if edge == "off" then
-                -- Unlock when pose is released in case the user holds it for a while.
                 unlocked = true
             elseif edge == "on" and not unlocked then
-                -- Vibrate twice on unlock.
-                -- We do this when the pose is made for better feedback.
-                myo.vibrate("short")
-                myo.vibrate("short")
-                myo.vibrate("short")
+                myo.vibrate("medium")
             end
-        elseif unlocked then
+        elseif unlocked then -- Lock
             if edge == "off" then
-                -- Unlock when pose is released in case the user holds it for a while.
                 unlocked = false
             elseif edge == "on" and not unlocked then
-                -- Vibrate twice on unlock.
-                -- We do this when the pose is made for better feedback.
-                myo.vibrate("short")
-                myo.vibrate("short")
-                myo.vibrate("short")
+                myo.vibrate("medium")
             end
         end
     end
@@ -93,30 +82,35 @@ function onPoseEdge(pose, edge)
             moveRight()
         elseif pose == "waveIn" then
             moveLeft()
-        elseif pose == "fist" and not fistMade then
+        elseif pose == "fist" and not fistMade then -- Sets up fist movement
             referenceRoll = myo.getRoll()
             fistMade = true
-            if myo.getXDirection() == "towardElbow" then
+            if myo.getXDirection() == "towardElbow" then -- Adjusts for Myo orientation
                 referenceRoll = referenceRoll * -1
             end
         end
 
-        if pose ~= "fist" and pose ~= "waveIn" and pose ~= "waveOut" and pose ~= "fingersSpread" then
-            resetFist()
+        -- Reset calls
+
+        if pose ~= "waveIn" and pose ~= "waveOut" and pose ~= "fingersSpread" then
             letItGo()
         end
+
+        if pose ~= "fist" then
+            resetFist()
+        end
+
     end
 end
 
 function onPeriodic()
-    -- Lock after inactivity
 
     currentRoll = myo.getRoll()
-    if myo.getXDirection() == "towardElbow" then
+    if myo.getXDirection() == "towardElbow" then -- Adjusts for Myo orientation
         currentRoll = currentRoll * -1
     end
 
-    if unlocked and fistMade then
+    if unlocked and fistMade then -- Moves ship when fist is held and Myo is rotated
         subtractive = currentRoll - referenceRoll
         if subtractive > 0.2 then
             moveRight()
@@ -128,19 +122,11 @@ function onPeriodic()
 end
 
 function onForegroundWindowChange(app, title)
-    -- Here we decide if we want to control the new active app.
-    local wantActive = false
-    activeApp = ""
-
-    wantActive = title == "Space Invaders"
-    activeApp = "Space Invaders"
-
-    return wantActive
+    return title == "Space Invaders"
 end
 
 function activeAppName()
-    -- Return the active app name determined in onForegroundWindowChange
-    return activeApp
+    return "Space Invaders"
 end
 
 function onActiveChange(isActive)
