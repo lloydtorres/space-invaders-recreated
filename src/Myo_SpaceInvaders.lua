@@ -1,4 +1,4 @@
-scriptId = 'es.lloydtorr.spaceinvaders'
+scriptId = 'com.lloydtorres.spaceinvaders'
 
 -- Lua script to play my version of Space Invaders using the Myo.
 -- A lot of the code was taken from the Myo SDK docs.
