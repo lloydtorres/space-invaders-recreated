@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.io.IOException;
 
 ///// JPANEL CLASS (DRAWS GRAPHICS, LISTENS FOR KEY INPUT, CALLS FOR MOVES)
@@ -22,11 +23,13 @@ public class Overseer extends JPanel implements KeyListener {
     private boolean paused = false; // flag for when user pauses/unpauses game
     private boolean restartGame = false; // flag for when user wants to restart the game
 
-	private Image back = new ImageIcon("sprites/background.png").getImage();
-    private Image pOverlay = new ImageIcon("sprites/paused.png").getImage();
-	private Image end = new ImageIcon("sprites/end.png").getImage();
+    private Color pOverlay = new Color(0, 0, 0, 200);
+    private File ttf = new File("fonts/visitor.ttf"); // font used to draw score, etc.
+    private Font fontL = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,150); // various font sizes
+    private Font fontM = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,100);
+    private Font fontS = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
 
-	public Overseer(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots){
+	public Overseer(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots) throws IOException, FontFormatException{
 		super();
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 		ship = player;
@@ -68,6 +71,35 @@ public class Overseer extends JPanel implements KeyListener {
         }
 	}
 
+    // draws the background
+    private void backDraw(Graphics g){
+        g.setColor(Color.BLACK);
+        g.fillRect(0,0,770,652);
+        g.setColor(Color.GREEN);
+        g.fillRect(0,32,770,3);
+        scoreMan.draw(g);
+    }
+
+    // draws the pause overlay
+    private void pauseOverlay(Graphics g){
+        g.setColor(pOverlay);
+        g.fillRect(0,0,770,652);
+        Graphics2D comp2D = (Graphics2D)g;
+        g.setColor(Color.WHITE);
+        comp2D.setFont(fontL);
+        comp2D.drawString("PAUSED",120,320);
+    }
+
+    // draws text for game over screen
+    private void gameOverOverlay(Graphics g){
+        Graphics2D comp2D = (Graphics2D)g;
+        g.setColor(Color.WHITE);
+        comp2D.setFont(fontM);
+        comp2D.drawString("GAME OVER",120,320);
+        comp2D.setFont(fontS);
+        comp2D.drawString("PRESS P TO PLAY AGAIN",130,400);
+    }
+
     // called to see if game is still in play
     public boolean stillPlaying(){
         if (ship.getLives() <= 0){ // check if player is still alive
@@ -87,43 +119,36 @@ public class Overseer extends JPanel implements KeyListener {
         return restartGame;
     }
 
-    public void restartAcknowledged(){
-        restartGame = false;
-    }
-
 	public void keyTyped(KeyEvent e){} // keyboard listeners
 	public void keyPressed(KeyEvent e){ keys[e.getKeyCode()] = true; }
 	public void keyReleased(KeyEvent e){
 	    keys[e.getKeyCode()] = false;
 
         // pause game
-        if (e.getKeyCode() == KeyEvent.VK_P && !enemies.reachedBottom()){
+        if (e.getKeyCode() == KeyEvent.VK_P && playing){
             paused = !paused;
         }
 
         // restart game when player has lost
-        if (e.getKeyCode() == KeyEvent.VK_SPACE && enemies.reachedBottom()){
+        if (e.getKeyCode() == KeyEvent.VK_P && !playing){
             restartGame = true;
         }
 	}
 
 	public void paintComponent(Graphics g){ // paints all elements of screen
+        backDraw(g);
 		if (playing){ // while game is still ongoing
-			g.drawImage(back,0,0,this);
 			shield.draw(g);
 			ship.draw(g);
             shotsFired.draw(g);
 	       	enemies.draw(g);
-
 		}
 		else { // when game is over
-			g.drawImage(end,0,0,this);
+            gameOverOverlay(g);
 		}
 
-		scoreMan.draw(g);
-
         if (paused){
-            g.drawImage(pOverlay,0,0,this);
+            pauseOverlay(g);
         }
 	}
 

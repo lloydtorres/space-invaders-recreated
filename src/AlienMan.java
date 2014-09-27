@@ -143,6 +143,14 @@ public class AlienMan {
         }
 	}
 
+    public void ufoDestroy(){
+        if (ufo != null && ufoMusic != null){
+            ufo = null;
+            ufoMusic.stop();
+            ufoMusic = null;
+        }
+    }
+
 	private void downer(){ // brings down aliens on screen
         if (!loseGame) {
             for (int i = 0; i < 11; i++) {

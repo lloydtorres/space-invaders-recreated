@@ -69,19 +69,18 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 	
-	private void nextLevel(){ // called every time user wins (all aliens destroyed), resets game setup
+	private void nextLevel() throws IOException, FontFormatException { // called every time user wins (all aliens destroyed), resets game setup
         remove(overseer);
 		if (wave < 10){
 			wave += 1;
 		}
 		player.addLife();
 		enemies = new AlienMan(wave,scoreMan,player,shield);
-        shotsFired = new BulletMan(player,enemies,shield);
 		overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
 		add(overseer);
 	}
 
-    private void startOverGame(){
+    private void startOverGame() throws IOException, FontFormatException {
 
         remove(overseer);
 
@@ -107,7 +106,7 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent evt){ // event listener stuff, update classes every 10 ms
 		Object source = evt.getSource();
 		if(source == myTimer){
-            if (overseer.stillPlaying() && !overseer.isPaused()){ // only move when not paused and player still alive
+            if (overseer.stillPlaying() && !overseer.isPaused() && !player.gotHit()){ // only move when not paused and player still alive
                 overseer.move(); // move player
                 if (enemies.metronome()){ // if aliens have moved
                     shotsFired.setAlienShots(enemies.attack()); // launch attack
@@ -115,13 +114,31 @@ public class SpaceInvaders extends JFrame implements ActionListener{
                 enemies.ufoTrack(); // move mystery UFO regardless of beat
                 shotsFired.trackBullets(); // move shots if they exist
             }
+
+            if (!overseer.stillPlaying()){
+                enemies.ufoDestroy();
+            }
+
             overseer.repaint();
+
 			if (enemies.aliensGone()){ // if no aliens left
-				nextLevel();
-			}
+                try {
+                    nextLevel();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (FontFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+
             if (overseer.doRestartGame()){ // check if player wants to restart game
-                overseer.restartAcknowledged();
-                startOverGame();
+                try {
+                    startOverGame();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (FontFormatException e) {
+                    e.printStackTrace();
+                }
             }
 		}
 	}

@@ -33,7 +33,7 @@ public class BulletMan {
         enemyShots = getAlienShots;
     }
 
-    public boolean trackBullets(){ // tracks bullets in the game, returns if user got hit
+    public void trackBullets(){ // tracks bullets in the game
 
         // checks if player bullet has hit anything
         if (playerShot != null){
@@ -64,7 +64,7 @@ public class BulletMan {
             }
         }
 
-        boolean gotHit = player.collide(enemyShots); // check if player got hit
+        player.collide(enemyShots); // check if player got hit
 
         // gets rid of bullets outside of screen
         // this implementation prevents a ConcurrentModificationException
@@ -79,7 +79,6 @@ public class BulletMan {
             enemyShots.remove(null);
         }
 
-        return gotHit;
     }
 
     public void draw(Graphics g){ // draw bullets
