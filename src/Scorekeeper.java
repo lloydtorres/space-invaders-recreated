@@ -17,7 +17,12 @@ public class Scorekeeper{
     public Scorekeeper() throws IOException, FontFormatException {
         hiScoreTxt = new File("src/hiscore.txt"); // get hi score
         inFile = new BufferedReader(new FileReader(hiScoreTxt));
-        hiScore = Long.parseLong(inFile.readLine(),10);
+        try{
+            hiScore = Long.parseLong(inFile.readLine(),10);
+        }
+        catch (NumberFormatException e){
+            hiScore = 0;
+        }
         inFile.close();
     }
 

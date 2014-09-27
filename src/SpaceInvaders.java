@@ -88,7 +88,7 @@ public class SpaceInvaders extends JFrame implements ActionListener{
         if (overseer != null){
             remove(overseer);
         }
-        
+
         wave = 0;
         player = new Cannon();
         shield = new Shield();
