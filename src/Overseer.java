@@ -119,8 +119,13 @@ public class Overseer extends JPanel implements KeyListener {
         return restartGame;
     }
 
+    @Override
 	public void keyTyped(KeyEvent e){} // keyboard listeners
+
+    @Override
 	public void keyPressed(KeyEvent e){ keys[e.getKeyCode()] = true; }
+
+    @Override
 	public void keyReleased(KeyEvent e){
 	    keys[e.getKeyCode()] = false;
 

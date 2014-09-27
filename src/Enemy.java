@@ -36,7 +36,6 @@ public class Enemy{
 			imgOne = imgTwo = new ImageIcon("sprites/d.png").getImage();
 			xSize = 51;
 			points = posPoints[coin.nextInt(3)];
-
 		}
 		x = posX;
 		y = posY;

@@ -56,13 +56,13 @@ public class AlienMan {
 	}
 
 	public boolean collide(Rectangle bullet){ // checks if alien hits a bullet from user
-		boolean toReturn = false; // flag to determine when alien has been hit
+		boolean alienHit = false; // flag to determine when alien has been hit
 		boolean ufoHit = false; // flag to determine if random UFO has been hit
 
 		if (ufo != null){ // checks if random UFO is hit
 			Rectangle rectCheck = ufo.getRect();
-			toReturn = rectCheck.intersects(bullet);
-			if (toReturn){ // if UFO was hit
+			alienHit = rectCheck.intersects(bullet);
+			if (alienHit){ // if UFO was hit
 				score.add(ufo.getScore());
 				ufo = null;
 				ufoHit = true;
@@ -72,10 +72,10 @@ public class AlienMan {
 		if (!ufoHit){ // otherwise, check the other aliens
 			for (int i=0;i<11;i++){
 				for (int j=0;j<5;j++){
-					if (aliens[j][i] != null){
+					if (aliens[j][i] != null ){
 						Rectangle rectCheck = aliens[j][i].getRect();
-						toReturn = rectCheck.intersects(bullet);
-						if (toReturn){ // if hit, remove alien and add score, etc.
+						alienHit = rectCheck.intersects(bullet);
+						if (alienHit){ // if hit, remove alien and add score, etc.
 							score.add(aliens[j][i].getScore());
 							aliens[j][i] = null;
 							beatModifier = Math.max(1, beatModifier - 1); // make aliens move faster
@@ -96,13 +96,13 @@ public class AlienMan {
 						}
 					}
 				}
-				if (toReturn){ // stop looking for aliens
+				if (alienHit){ // stop looking for aliens
 					break;
 				}
 			}
 		}
 
-		return toReturn;
+		return alienHit;
 	}
 
 	public boolean reachedBottom(){ // returns flag determining if user lost

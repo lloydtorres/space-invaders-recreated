@@ -39,6 +39,10 @@ import java.io.IOException;
 public class SpaceInvaders extends JFrame implements ActionListener{
 
 	private javax.swing.Timer myTimer;
+
+    private MainMenu menu; // first JPanel
+    private boolean gameStart = false;
+
     private Overseer overseer; // component classes of the game
     private Cannon player;
     private AlienMan enemies;
@@ -53,14 +57,9 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 		
 		setLayout(null);
 		setSize(770,652);
-		
-		player = new Cannon();
-        shield = new Shield();
-        scoreMan = new Scorekeeper(player);
-		enemies = new AlienMan(wave,scoreMan,player,shield);
-        shotsFired = new BulletMan(player,enemies,shield);
-		overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
-		add(overseer);
+
+        menu = new MainMenu();
+        add(menu);
 
 		myTimer = new javax.swing.Timer(10,this); // update every 10 ms
 		myTimer.start();
@@ -106,39 +105,72 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent evt){ // event listener stuff, update classes every 10 ms
 		Object source = evt.getSource();
 		if(source == myTimer){
-            if (overseer.stillPlaying() && !overseer.isPaused() && !player.gotHit()){ // only move when not paused and player still alive
-                overseer.move(); // move player
-                if (enemies.metronome()){ // if aliens have moved
-                    shotsFired.setAlienShots(enemies.attack()); // launch attack
+            if (gameStart) {
+                if (overseer.stillPlaying() && !overseer.isPaused() && !player.gotHit()) { // only move when not paused and player still alive
+                    overseer.move(); // move player
+                    if (enemies.metronome()) { // if aliens have moved
+                        shotsFired.setAlienShots(enemies.attack()); // launch attack
+                    }
+                    enemies.ufoTrack(); // move mystery UFO regardless of beat
+                    shotsFired.trackBullets(); // move shots if they exist
                 }
-                enemies.ufoTrack(); // move mystery UFO regardless of beat
-                shotsFired.trackBullets(); // move shots if they exist
-            }
 
-            if (!overseer.stillPlaying()){
-                enemies.ufoDestroy();
-            }
+                if (!overseer.stillPlaying()) {
+                    enemies.ufoDestroy();
+                    scoreMan.calculateHiScore();
+                }
 
-            overseer.repaint();
+                overseer.repaint();
 
-			if (enemies.aliensGone()){ // if no aliens left
-                try {
-                    nextLevel();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (FontFormatException e) {
-                    e.printStackTrace();
+                if (enemies.aliensGone()) { // if no aliens left
+                    try {
+                        nextLevel();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (FontFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (overseer.doRestartGame()) { // check if player wants to restart game
+                    try {
+                        startOverGame();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (FontFormatException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+            else {
+                gameStart = menu.getStatus();
+                if (gameStart){ // initialize if player starts game
+                    player = new Cannon();
+                    shield = new Shield();
 
-            if (overseer.doRestartGame()){ // check if player wants to restart game
-                try {
-                    startOverGame();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (FontFormatException e) {
-                    e.printStackTrace();
+                    try {
+                        scoreMan = new Scorekeeper(player);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (FontFormatException e) {
+                        e.printStackTrace();
+                    }
+
+                    enemies = new AlienMan(wave,scoreMan,player,shield);
+                    shotsFired = new BulletMan(player,enemies,shield);
+
+                    try {
+                        overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (FontFormatException e) {
+                        e.printStackTrace();
+                    }
+
+                    remove(menu);
+                    add(overseer);
                 }
+                menu.repaint();
             }
 		}
 	}
