@@ -59,6 +59,10 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 		setSize(770,652);
 
         menu = new MainMenu();
+        scoreMan = new Scorekeeper();
+
+        menu.setHiScore(scoreMan.getHiScore());
+
         add(menu);
 
 		myTimer = new javax.swing.Timer(10,this); // update every 10 ms
@@ -81,21 +85,15 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 
     private void startOverGame() throws IOException, FontFormatException {
 
-        remove(overseer);
-
+        if (overseer != null){
+            remove(overseer);
+        }
+        
         wave = 0;
         player = new Cannon();
         shield = new Shield();
-
-        // error handling in case fonts are missing
-        try {
-            scoreMan = new Scorekeeper(player);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FontFormatException e) {
-            e.printStackTrace();
-        }
-
+        scoreMan.setShip(player);
+        scoreMan.resetScore();
         enemies = new AlienMan(wave,scoreMan,player,shield);
         shotsFired = new BulletMan(player,enemies,shield);
         overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
@@ -123,6 +121,7 @@ public class SpaceInvaders extends JFrame implements ActionListener{
                 overseer.repaint();
 
                 if (enemies.aliensGone()) { // if no aliens left
+                    // error handling in case font doesn't exist
                     try {
                         nextLevel();
                     } catch (IOException e) {
@@ -133,6 +132,7 @@ public class SpaceInvaders extends JFrame implements ActionListener{
                 }
 
                 if (overseer.doRestartGame()) { // check if player wants to restart game
+                    // error handling in case font doesn't exist
                     try {
                         startOverGame();
                     } catch (IOException e) {
@@ -145,30 +145,16 @@ public class SpaceInvaders extends JFrame implements ActionListener{
             else {
                 gameStart = menu.getStatus();
                 if (gameStart){ // initialize if player starts game
-                    player = new Cannon();
-                    shield = new Shield();
-
-                    try {
-                        scoreMan = new Scorekeeper(player);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (FontFormatException e) {
-                        e.printStackTrace();
-                    }
-
-                    enemies = new AlienMan(wave,scoreMan,player,shield);
-                    shotsFired = new BulletMan(player,enemies,shield);
-
-                    try {
-                        overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (FontFormatException e) {
-                        e.printStackTrace();
-                    }
-
                     remove(menu);
-                    add(overseer);
+
+                    // error handling in case font doesn't exist
+                    try {
+                        startOverGame();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (FontFormatException e) {
+                        e.printStackTrace();
+                    }
                 }
                 menu.repaint();
             }

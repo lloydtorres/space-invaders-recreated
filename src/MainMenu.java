@@ -9,6 +9,8 @@ import java.io.IOException;
 public class MainMenu extends JPanel implements KeyListener {
 
     private boolean startGame = false;
+    private long hiScore = 0;
+
     private int beatCount = 0;
     private int beat = 0;
     private Enemy[] aliens = {new Enemy(4,75,230),new Enemy(1,88,283),new Enemy(2,83,336),new Enemy(3,82,389)};
@@ -31,6 +33,8 @@ public class MainMenu extends JPanel implements KeyListener {
     public boolean getStatus(){
         return startGame;
     }
+
+    public void setHiScore(long getHiScore) { hiScore = getHiScore; }
 
     @Override
     public void keyTyped(KeyEvent e) {}
@@ -69,7 +73,7 @@ public class MainMenu extends JPanel implements KeyListener {
         comp2D.drawString("= 20",161,362);
         comp2D.drawString("= 10",161,415);
         comp2D.drawString("HIGH SCORE:",342,308);
-        comp2D.drawString("SAMPLE",342,362);
+        comp2D.drawString(Long.toString(hiScore,10),342,362);
         comp2D.drawString("PRESS SPACE TO PLAY",111,519);
 
         // draw aliens
