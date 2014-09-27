@@ -31,35 +31,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ///// MODULES TO IMPORT
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
-import java.lang.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 
 ///// MAIN CLASS
 public class SpaceInvaders extends JFrame implements ActionListener{
 
-	javax.swing.Timer myTimer;
-	Drawer artist; // component classes of the game
-	Cannon player;
-	AlienTrackr enemies;
-	Scorekeeper scoreMan;
-	Shield shield;
-	int wave = 0; // # of wins by the user, keeps track of subsequent alien start location
+	private javax.swing.Timer myTimer;
+    private Overseer overseer; // component classes of the game
+    private Cannon player;
+    private AlienMan enemies;
+    private Scorekeeper scoreMan;
+    private Shield shield;
+    private BulletMan shotsFired;
+    private int wave = 0; // # of wins by the user, keeps track of subsequent alien start location
 	
 	public SpaceInvaders() throws IOException, FontFormatException{
-		super("Space Invaders");
+		super("Space Invaders Recreated");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		setLayout(null);
 		setSize(770,652);
 		
 		player = new Cannon();
-		shield = new Shield();
-		scoreMan = new Scorekeeper(player);
-		enemies = new AlienTrackr(wave,scoreMan,player,shield);
-		artist = new Drawer(player,enemies,scoreMan,shield);
-		add(artist);
+        shield = new Shield();
+        scoreMan = new Scorekeeper(player);
+		enemies = new AlienMan(wave,scoreMan,player,shield);
+        shotsFired = new BulletMan(player,enemies,shield);
+		overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
+		add(overseer);
 
 		myTimer = new javax.swing.Timer(10,this); // update every 10 ms
 		myTimer.start();
@@ -68,27 +69,60 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 	
-	public void resetGame(){ // called every time user wins (all aliens destroyed), resets game setup
+	private void nextLevel(){ // called every time user wins (all aliens destroyed), resets game setup
+        remove(overseer);
 		if (wave < 10){
 			wave += 1;
 		}
 		player.addLife();
-		enemies = new AlienTrackr(wave,scoreMan,player,shield);
-		artist = new Drawer(player,enemies,scoreMan,shield);
-		add(artist);
+		enemies = new AlienMan(wave,scoreMan,player,shield);
+        shotsFired = new BulletMan(player,enemies,shield);
+		overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
+		add(overseer);
 	}
+
+    private void startOverGame(){
+
+        remove(overseer);
+
+        wave = 0;
+        player = new Cannon();
+        shield = new Shield();
+
+        // error handling in case fonts are missing
+        try {
+            scoreMan = new Scorekeeper(player);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FontFormatException e) {
+            e.printStackTrace();
+        }
+
+        enemies = new AlienMan(wave,scoreMan,player,shield);
+        shotsFired = new BulletMan(player,enemies,shield);
+        overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
+        add(overseer);
+    }
 	
 	public void actionPerformed(ActionEvent evt){ // event listener stuff, update classes every 10 ms
 		Object source = evt.getSource();
 		if(source == myTimer){
-			artist.move();
-			artist.trackBullet();
-			enemies.metronome();
-	        enemies.attack();
-			artist.repaint();
-			if (enemies.aliensGone()){
-				resetGame();
+            if (overseer.stillPlaying() && !overseer.isPaused()){ // only move when not paused and player still alive
+                overseer.move(); // move player
+                if (enemies.metronome()){ // if aliens have moved
+                    shotsFired.setAlienShots(enemies.attack()); // launch attack
+                }
+                enemies.ufoTrack(); // move mystery UFO regardless of beat
+                shotsFired.trackBullets(); // move shots if they exist
+            }
+            overseer.repaint();
+			if (enemies.aliensGone()){ // if no aliens left
+				nextLevel();
 			}
+            if (overseer.doRestartGame()){ // check if player wants to restart game
+                overseer.restartAcknowledged();
+                startOverGame();
+            }
 		}
 	}
 	

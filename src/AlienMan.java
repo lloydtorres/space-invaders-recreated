@@ -1,9 +1,13 @@
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 ///// ALIEN TRACKER CLASS (CONTROLS MOVEMENT OF ALIENS)
-public class AlienTrackr{
+public class AlienMan {
 	public static final int LEFT = -1; // used to specify if aliens are going left or right
 	public static final int RIGHT = 1;
 
@@ -12,12 +16,15 @@ public class AlienTrackr{
 
 	private Enemy aliens[][] = new Enemy[5][11]; // 2D array keeping track of each individual alien
     private Enemy ufo; // used to keep track of random UFO that shows up on top of screen
+    private Clip ufoMusic; // used to hold and stop UFO music when playing
     private ArrayList<Bullet> enemyShots = new ArrayList<Bullet>(); // list of bullets shot by aliens
-	private int noEnemies = 55; // number of eneimes remaining
+	private int noEnemies = 55; // number of enemies remaining
 
 	private int beat = 0; // flips between 0 and 1, used to determine which image to display
 	private int beatCount = 0; // counter used to determine when to move aliens
 	private int beatModifier; // used to mod beatCount; if divisible, can move; goes down as game goes on
+
+    private int musicCount = 1; // used to determine which WAV file to play per beat
 
 	private int globDir = RIGHT; // determines direction of aliens as they move across screen
 	private int topLeft = 127; // determines alien position
@@ -27,7 +34,7 @@ public class AlienTrackr{
 	private Scorekeeper score;
 	private Random coin = new Random(); // used for chance events
 
-	public AlienTrackr(int wave,Scorekeeper getScore,Cannon getShip,Shield getShield){
+	public AlienMan(int wave, Scorekeeper getScore, Cannon getShip, Shield getShield){
 		ship = getShip;
 		score = getScore;
 		shield = getShield;
@@ -73,7 +80,19 @@ public class AlienTrackr{
 							aliens[j][i] = null;
 							beatModifier = Math.max(1, beatModifier - 1); // make aliens move faster
 							noEnemies -= 1;
-							break;
+
+                            // play music
+                            try {
+                                SoundMan.play("alienShot");
+                            } catch (UnsupportedAudioFileException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (LineUnavailableException e) {
+                                e.printStackTrace();
+                            }
+
+                            break;
 						}
 					}
 				}
@@ -86,7 +105,7 @@ public class AlienTrackr{
 		return toReturn;
 	}
 
-	public boolean lostYet(){ // returns flag determining if user lost
+	public boolean reachedBottom(){ // returns flag determining if user lost
 		return loseGame;
 	}
 
@@ -95,15 +114,33 @@ public class AlienTrackr{
 	}
 
 	public void ufoTrack(){ // used to generate and move random UFO
-		if (coin.nextInt(500) == 0 && ufo == null){ // generate new UFO
+		if (coin.nextInt(2000) == 0 && ufo == null){ // generate new UFO
 			ufo = new Enemy(4,770,45);
-		}
+
+            // play music
+            try {
+                ufoMusic = SoundMan.play("ufo");
+                ufoMusic.loop(Clip.LOOP_CONTINUOUSLY);
+            } catch (UnsupportedAudioFileException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (LineUnavailableException e) {
+                e.printStackTrace();
+            }
+        }
 		if (ufo != null && beatCount%2==0){ // move UFO
 			ufo.smoothLeft();
 		}
 		if (ufo != null && ufo.getX() <= -51){ // if UFO is out of bounds
 			ufo = null;
 		}
+
+        // stop music
+        if (ufo == null && ufoMusic != null){
+            ufoMusic.stop();
+            ufoMusic = null;
+        }
 	}
 
 	private void downer(){ // brings down aliens on screen
@@ -194,33 +231,41 @@ public class AlienTrackr{
 		}
 	}
 
-	public void metronome(){ // function manages "beats", i.e. alien move speed, which image to display, etc.
+	public boolean metronome(){ // function manages "beats", i.e. alien move speed, which image to display, etc.
 		beatCount += 1;
 
 		if (beatCount%beatModifier == 0){ // move aliens when counter is divisible by beat modifier
 			move();
 			beat = 1 - beat; // flips between 1 and 0
 			beatCount = 0;
-        }
 
-		for (int i=0;i<enemyShots.size();i++){ // move enemy shots
-			if (enemyShots.get(i) != null){
-				enemyShots.get(i).move();
-				boolean hitTest = false; // sees if alien bullets have hit shield
-				hitTest = shield.collide(enemyShots.get(i).getRect());
-				if (hitTest){
-					enemyShots.set(i,null);
-				}
-			}
-		}
+            // play music
+            try {
+                SoundMan.play(Integer.toString(musicCount));
+            } catch (UnsupportedAudioFileException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (LineUnavailableException e) {
+                e.printStackTrace();
+            }
+
+            musicCount += 1;
+            if (musicCount > 4){
+                musicCount = 1;
+            }
+
+            return true;
+        }
+        return false;
 	}
 
-	public void attack(){ // used to generate bullets from aliens
-		boolean alreadyShot = false; // flag to determine if aliens have shot on that beat, prevents aliens from attacking all at once
+	public ArrayList<Bullet> attack(){ // used to generate bullets from aliens
+		boolean alreadyShot = false; // flag to determine if aliens have shot on that call, prevents aliens from attacking all at once
 		for (int i=0;i<11;i++){
 			for (int j=4;j>=0;j--){
 				if (aliens[j][i] != null){ // for each alien
-					int ranNoGen = coin.nextInt((int)(((noEnemies+1)/56.0)*1500)); // random number generator more likely to hit 0 when less aliens are present
+					int ranNoGen = coin.nextInt((int)(((noEnemies+1)/56.0)*100)); // random number generator more likely to hit 0 when less aliens are present
 					if (ranNoGen == 0){
 						alreadyShot = true;
 						int newX = aliens[j][i].getX() + (int)(aliens[j][i].getSizeX()/2); // generate new bullet from specific alien
@@ -235,25 +280,7 @@ public class AlienTrackr{
 				break;
 			}
 		}
-
-		ship.collide(enemyShots); // check bullet collisions and see if ship is still alive
-		if (ship.getLives() <= 0){
-			loseGame = true;
-		}
-
-        // this implementation prevents a ConcurrentModificationException
-		for (int k=0;k<enemyShots.size();k++){ // gets rid of bullets outside of screen
-			if (enemyShots.get(k)!=null && enemyShots.get(k).getY() > 770){
-					enemyShots.set(k,null);
-			}
-		}
-		while (enemyShots.contains(null)){ // clears out non-existent bullets
-			enemyShots.remove(null);
-		}
-	}
-
-	public ArrayList<Bullet> getEnemyShots(){
-		return enemyShots;
+        return enemyShots;
 	}
 
 	public void draw(Graphics g){ // draws aliens, bullets, random UFO
@@ -267,9 +294,7 @@ public class AlienTrackr{
 				}
 			}
 		}
-		for (Bullet shot : enemyShots){
-			shot.draw(g);
-		}
+
 		if (ufo != null){
 			Image tmpHolder = ufo.getImage(beat);
 			int tmpX = ufo.getX();

@@ -1,5 +1,8 @@
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 
 ///// CANNON CLASS (CONTROLS AND DRAWS USER'S CANNON)
@@ -54,7 +57,18 @@ public class Cannon{
 			lives -= 1;
             if (lives < 0) lives = 0; // prevents # of lives from becoming negative
 			pos = 366;
-		}
+
+            // play music
+            try {
+                SoundMan.play("playerDown");
+            } catch (UnsupportedAudioFileException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (LineUnavailableException e) {
+                e.printStackTrace();
+            }
+        }
 		return gotShot;
 	}
 
