@@ -88,11 +88,11 @@ function onPeriodic()
 end
 
 function onForegroundWindowChange(app, title)
-    return title == "Space Invaders"
+    return title == "Space Invaders Recreated"
 end
 
 function activeAppName()
-    return "Space Invaders"
+    return "Space Invaders Recreated"
 end
 
 function onActiveChange(isActive)
