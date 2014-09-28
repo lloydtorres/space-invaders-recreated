@@ -114,7 +114,7 @@ public class AlienMan {
 	}
 
 	public void ufoTrack(){ // used to generate and move random UFO
-		if (coin.nextInt(2000) == 0 && ufo == null){ // generate new UFO
+		if (coin.nextInt(5000) == 0 && ufo == null){ // generate new UFO
 			ufo = new Enemy(4,770,45);
 
             // play music

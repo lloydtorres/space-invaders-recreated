@@ -79,6 +79,7 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 		}
 		player.addLife();
 		enemies = new AlienMan(wave,scoreMan,player,shield);
+        shotsFired = new BulletMan(player,enemies,shield);
 		overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
 		add(overseer);
 	}

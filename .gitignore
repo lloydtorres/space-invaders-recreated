@@ -1,4 +1,5 @@
 *.class
+src/hiscore.txt
 
 # IntelliJ stuff
 .idea/
