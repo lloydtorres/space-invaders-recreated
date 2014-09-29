@@ -11,10 +11,24 @@ Space Invaders is copyrighted by Taito Corporation. This code is provided by me 
 
 ![Space Invaders Recreated](screenshot.png)
 
+### Installation
+
+If you are on Windows, ensure that you have the [JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) installed.
+
+From the `space-invaders-recreated` directory on command line/terminal, enter the following to compile the code:
+
+```$ javac -d . @compile.txt```
+
+To run Space Invaders Recreated after compiling, enter:
+
+```$ java SpaceInvaders```
+
+To enable Myo controls for the game, add `src/Myo_SpaceInvaders.lua` to the Myo Scripts Manager.
+
 #### Controls
 
-* **Left/Right Arrow** (waveLeft/waveRight on Myo) - Move ship across screen.
-* **Space** (fist on Myo) - Fire!
+* **Left/Right Arrow** (**Wave Left/Wave Right** on Myo) - Move ship across screen.
+* **Space** (**Fist** on Myo) - Fire!
 * **P** - Pause game.
 
 #### Changelog
