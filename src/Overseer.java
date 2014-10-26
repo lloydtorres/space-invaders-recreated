@@ -10,14 +10,14 @@ import java.io.IOException;
 ///// JPANEL CLASS (DRAWS GRAPHICS, LISTENS FOR KEY INPUT, CALLS FOR MOVES)
 public class Overseer extends JPanel implements KeyListener {
 
-	private Cannon ship; // game elements generated in main class
-	private AlienMan enemies;
-	private Bullet shot; // bullet shot by user
-	private Scorekeeper scoreMan;
-	private Shield shield;
+    private Cannon ship; // game elements generated in main class
+    private AlienMan enemies;
+    private Bullet shot; // bullet shot by user
+    private Scorekeeper scoreMan;
+    private Shield shield;
     private BulletMan shotsFired;
 
-	private boolean[]keys; // holds keyboard input
+    private boolean[]keys; // holds keyboard input
 
     private boolean playing = true; // flag to see if game is still ongoing
     private boolean paused = false; // flag for when user pauses/unpauses game
@@ -29,25 +29,25 @@ public class Overseer extends JPanel implements KeyListener {
     private Font fontM = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,100);
     private Font fontS = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
 
-	public Overseer(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots) throws IOException, FontFormatException{
-		super();
-		keys = new boolean[KeyEvent.KEY_LAST+1];
-		ship = player;
-		enemies = badGuys;
-		scoreMan = getScore;
-		shield = getShield;
+    public Overseer(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots) throws IOException, FontFormatException{
+        super();
+        keys = new boolean[KeyEvent.KEY_LAST+1];
+        ship = player;
+        enemies = badGuys;
+        scoreMan = getScore;
+        shield = getShield;
         shotsFired = getShots;
 
-		setSize(770,652);
-		addKeyListener(this);
-	}
+        setSize(770,652);
+        addKeyListener(this);
+    }
 
-	public void addNotify(){
-		super.addNotify();
-		requestFocus();
-	}
+    public void addNotify(){
+        super.addNotify();
+        requestFocus();
+    }
 
-	public void move(){ // takes in keyboard input and moves user cannon
+    public void move(){ // takes in keyboard input and moves user cannon
         if (keys[KeyEvent.VK_RIGHT] && (ship.getPos() + 5) <= 740) {
             ship.right();
         }
@@ -69,7 +69,7 @@ public class Overseer extends JPanel implements KeyListener {
                 e.printStackTrace();
             }
         }
-	}
+    }
 
     // draws the background
     private void backDraw(Graphics g){
@@ -120,14 +120,14 @@ public class Overseer extends JPanel implements KeyListener {
     }
 
     @Override
-	public void keyTyped(KeyEvent e){} // keyboard listeners
+    public void keyTyped(KeyEvent e){} // keyboard listeners
 
     @Override
-	public void keyPressed(KeyEvent e){ keys[e.getKeyCode()] = true; }
+    public void keyPressed(KeyEvent e){ keys[e.getKeyCode()] = true; }
 
     @Override
-	public void keyReleased(KeyEvent e){
-	    keys[e.getKeyCode()] = false;
+    public void keyReleased(KeyEvent e){
+        keys[e.getKeyCode()] = false;
 
         // pause game
         if (e.getKeyCode() == KeyEvent.VK_P && playing){
@@ -138,23 +138,23 @@ public class Overseer extends JPanel implements KeyListener {
         if (e.getKeyCode() == KeyEvent.VK_P && !playing){
             restartGame = true;
         }
-	}
+    }
 
-	public void paintComponent(Graphics g){ // paints all elements of screen
+    public void paintComponent(Graphics g){ // paints all elements of screen
         backDraw(g);
-		if (playing){ // while game is still ongoing
-			shield.draw(g);
-			ship.draw(g);
+        if (playing){ // while game is still ongoing
+            shield.draw(g);
+            ship.draw(g);
             shotsFired.draw(g);
-	       	enemies.draw(g);
-		}
-		else { // when game is over
+               enemies.draw(g);
+        }
+        else { // when game is over
             gameOverOverlay(g);
-		}
+        }
 
         if (paused){
             pauseOverlay(g);
         }
-	}
+    }
 
 }
