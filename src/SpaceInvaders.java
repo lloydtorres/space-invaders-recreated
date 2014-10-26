@@ -38,7 +38,7 @@ import java.io.IOException;
 ///// MAIN CLASS
 public class SpaceInvaders extends JFrame implements ActionListener{
 
-	private javax.swing.Timer myTimer;
+    private javax.swing.Timer myTimer;
 
     private MainMenu menu; // first JPanel
     private boolean gameStart = false;
@@ -50,13 +50,13 @@ public class SpaceInvaders extends JFrame implements ActionListener{
     private Shield shield;
     private BulletMan shotsFired;
     private int wave = 0; // # of wins by the user, keeps track of subsequent alien start location
-	
-	public SpaceInvaders() throws IOException, FontFormatException{
-		super("Space Invaders Recreated");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		setLayout(null);
-		setSize(770,652);
+    
+    public SpaceInvaders() throws IOException, FontFormatException{
+        super("Space Invaders Recreated");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        setLayout(null);
+        setSize(770,652);
 
         menu = new MainMenu();
         scoreMan = new Scorekeeper();
@@ -65,24 +65,24 @@ public class SpaceInvaders extends JFrame implements ActionListener{
 
         add(menu);
 
-		myTimer = new javax.swing.Timer(10,this); // update every 10 ms
-		myTimer.start();
-		
-		setResizable(false);
-		setVisible(true);
-	}
-	
-	private void nextLevel() throws IOException, FontFormatException { // called every time user wins (all aliens destroyed), resets game setup
+        myTimer = new javax.swing.Timer(10,this); // update every 10 ms
+        myTimer.start();
+        
+        setResizable(false);
+        setVisible(true);
+    }
+    
+    private void nextLevel() throws IOException, FontFormatException { // called every time user wins (all aliens destroyed), resets game setup
         remove(overseer);
-		if (wave < 10){
-			wave += 1;
-		}
-		player.addLife();
-		enemies = new AlienMan(wave,scoreMan,player,shield);
+        if (wave < 10){
+            wave += 1;
+        }
+        player.addLife();
+        enemies = new AlienMan(wave,scoreMan,player,shield);
         shotsFired = new BulletMan(player,enemies,shield);
-		overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
-		add(overseer);
-	}
+        overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
+        add(overseer);
+    }
 
     private void startOverGame() throws IOException, FontFormatException {
 
@@ -100,10 +100,10 @@ public class SpaceInvaders extends JFrame implements ActionListener{
         overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
         add(overseer);
     }
-	
-	public void actionPerformed(ActionEvent evt){ // event listener stuff, update classes every 10 ms
-		Object source = evt.getSource();
-		if(source == myTimer){
+    
+    public void actionPerformed(ActionEvent evt){ // event listener stuff, update classes every 10 ms
+        Object source = evt.getSource();
+        if(source == myTimer){
             if (gameStart) {
                 if (overseer.stillPlaying() && !overseer.isPaused() && !player.gotHit()) { // only move when not paused and player still alive
                     overseer.move(); // move player
@@ -159,10 +159,10 @@ public class SpaceInvaders extends JFrame implements ActionListener{
                 }
                 menu.repaint();
             }
-		}
-	}
-	
-	public static void main(String[]args) throws IOException, FontFormatException{
-		new SpaceInvaders();
-	}
+        }
+    }
+    
+    public static void main(String[]args) throws IOException, FontFormatException{
+        new SpaceInvaders();
+    }
 }
