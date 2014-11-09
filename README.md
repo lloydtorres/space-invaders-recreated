@@ -27,7 +27,7 @@ To enable Myo controls for the game, add `src/Myo_SpaceInvaders.lua` to the Myo 
 
 #### Controls
 
-* **Left/Right Arrow** (**Wave Left/Wave Right** on Myo) - Move ship across screen.
+* **Left/Right Arrow** (**Roll Left/Right** on Myo) - Move ship across screen.
 * **Space** (**Fist** on Myo) - Fire!
 * **P** - Pause game.
 
@@ -37,3 +37,4 @@ To enable Myo controls for the game, add `src/Myo_SpaceInvaders.lua` to the Myo 
 * **1.2** (8 Sep 2014) - Added rudimentary Myo support through a Lua script.
 * **1.2.1** (12 Sep 2014) - Lua code fixes and cleanup; removed fist move functionality.
 * **2.0** (26 Sep 2014) - Major update! Game now has sound, pausing, main menu and other UI enhancements.
+* **2.0.1** (9 Nov 2014) - Revise Lua plugin controls to make gameplay easier.

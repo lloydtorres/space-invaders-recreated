@@ -1,20 +1,31 @@
 scriptId = 'com.lloydtorres.spaceinvaders'
 
--- Lua script to play my version of Space Invaders using the Myo.
--- A lot of the code was taken from the Myo SDK docs.
+ --[[
+
+This is a Lua plugin you can add to Myo Connect to play Space Invaders  
+Recreated by Lloyd Torres using the Myo armband. Controls are:
+
+- Thumb to Pinky: Set reference roll (i.e. position where no movement happens)
+- Fist: Fire!!!
+- Roll Left/Right: Move left/right
+
+]] --
 
 -- Variables
 
-unlocked = false
+rHold = false
+lHold = false
 
 -- Effects
 
 function moveRight()
 	myo.keyboard("right_arrow","down")
+    rHold = true
 end
 
 function moveLeft()
 	myo.keyboard("left_arrow","down")
+    lHold = true
 end
 
 function fire()
@@ -23,72 +34,66 @@ end
 
 -- Helpers
 
-function letItGo() -- Resets keys to normal state
+function resetRight()
     myo.keyboard("right_arrow","up")
+    rHold = false
+end
+
+function resetLeft()
     myo.keyboard("left_arrow","up")
+    lHold = false
+end
+
+function resetFire()
     myo.keyboard("space","up")
 end
 
-function conditionallySwapWave(pose) -- Changes waveIn/waveOut to be waveLeft/waveRight instead
-    if myo.getArm() == "left" then
-        if pose == "waveIn" then
-            pose = "waveOut"
-        elseif pose == "waveOut" then
-            pose = "waveIn"
-        end
+function getRoll()
+    tmp = myo.getRoll()
+    if myo.getXDirection() == "towardWrist" then
+        tmp = tmp * -1
     end
-    return pose
+    return tmp
 end
 
 -- Callbacks
 
 function onPoseEdge(pose, edge)
-
-    pose = conditionallySwapWave(pose)
-
-    if pose == "thumbToPinky" then
-
-        if not unlocked then -- Unlock
-            if edge == "off" then
-                unlocked = true
-            elseif edge == "on" and not unlocked then
-                myo.vibrate("medium")
-            end
-        elseif unlocked then -- Lock
-            if edge == "off" then
-                unlocked = false
-            elseif edge == "on" and not unlocked then
-                myo.vibrate("medium")
-            end
-        end
-        
-    end
-
-    -- Other gestures
-    if unlocked and edge == "on" then
-
-        if pose == "fist" then
+    if pose == "thumbToPinky" then -- Set reference roll
+        reference = getRoll()
+    elseif pose == "fist" then -- Fire!!!
+        if edge == "on" then
             fire()
-            myo.vibrate("short")
-        elseif pose == "waveOut" then
-            moveRight()
-        elseif pose == "waveIn" then
-            moveLeft()
+        elseif edge == "off" then
+            resetFire()
         end
-
     end
-
-    if edge == "off" then
-        letItGo()
-    end
-
 end
 
 function onPeriodic()
+    curRoll = getRoll()
+
+    diff = reference - curRoll
+    if diff > 0.12 then
+        moveRight()
+    elseif diff < -0.12 then
+        moveLeft()
+    else
+        if rHold then
+            resetRight()
+        end
+        if lHold then
+            resetLeft()
+        end
+    end
+
 end
 
 function onForegroundWindowChange(app, title)
-    return title == "Space Invaders Recreated"
+    if title == "Space Invaders Recreated" then
+        reference = getRoll()
+        return true
+    end 
 end
 
 function activeAppName()
@@ -96,7 +101,7 @@ function activeAppName()
 end
 
 function onActiveChange(isActive)
-    if not isActive then
-        unlocked = false
+    if isActive then 
+        reference = getRoll()
     end
 end
