@@ -23,7 +23,7 @@ To run Space Invaders Recreated after compiling, enter:
 
 ```$ java SpaceInvaders```
 
-To enable Myo controls for the game, add `src/Myo_SpaceInvaders.lua` to the Myo Scripts Manager.
+To enable Myo controls for the game, add `src/SpaceInvadersRecreated.myo` to Myo Connect's Application Manager.
 
 #### Controls
 

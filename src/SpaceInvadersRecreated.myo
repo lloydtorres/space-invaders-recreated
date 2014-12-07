@@ -6,7 +6,7 @@ scriptTitle = 'Space Invaders Recreated'
 This is a Lua plugin you can add to Myo Connect to play Space Invaders  
 Recreated by Lloyd Torres using the Myo armband. Controls are:
 
-- Thumb to Pinky: Set reference roll (i.e. position where no movement happens)
+- Double Tap: Set reference roll (i.e. position where no movement happens)
 - Fist: Fire!!!
 - Roll Left/Right: Move left/right
 
@@ -33,6 +33,7 @@ end
 
 function fire()
 	myo.keyboard("space","down")
+    myo.vibrate("short")
 end
 
 -- Helpers
@@ -62,8 +63,9 @@ end
 -- Callbacks
 
 function onPoseEdge(pose, edge)
-    if pose == "thumbToPinky" then -- Set reference roll
+    if pose == "doubleTap" then -- Set reference roll
         reference = getRoll()
+        myo.notifyUserAction()
     elseif pose == "fist" then -- Fire!!!
         if edge == "on" then
             fire()
