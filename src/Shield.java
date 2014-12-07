@@ -51,10 +51,10 @@ public class Shield{
 
     public void draw(Graphics g){ // draws each block
         g.setColor(new Color(0, 255, 0));
-        for (Rectangle shieldBlok : shieldBlocks) {
-            if (shieldBlok != null) {
-                int tempX = (int) (shieldBlok.getX());
-                int tempY = (int) (shieldBlok.getY());
+        for (Rectangle shieldBlock : shieldBlocks) {
+            if (shieldBlock != null) {
+                int tempX = (int) (shieldBlock.getX());
+                int tempY = (int) (shieldBlock.getY());
                 g.fillRect(tempX, tempY, 5, 5);
             }
         }
