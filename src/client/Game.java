@@ -1,3 +1,5 @@
+package client;
+
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
@@ -8,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 ///// JPANEL CLASS (DRAWS GRAPHICS, LISTENS FOR KEY INPUT, CALLS FOR MOVES)
-public class Overseer extends JPanel implements KeyListener {
+public class GameContext extends JPanel implements KeyListener {
 
     private Cannon ship; // game elements generated in main class
     private AlienMan enemies;
@@ -29,7 +31,7 @@ public class Overseer extends JPanel implements KeyListener {
     private Font fontM = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,100);
     private Font fontS = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
 
-    public Overseer(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots) throws IOException, FontFormatException{
+    public GameContext(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots) throws IOException, FontFormatException{
         super();
         keys = new boolean[KeyEvent.KEY_LAST+1];
         ship = player;
@@ -38,7 +40,7 @@ public class Overseer extends JPanel implements KeyListener {
         shield = getShield;
         shotsFired = getShots;
 
-        setSize(770,652);
+        setPreferredSize(new Dimension(770, 652));
         addKeyListener(this);
     }
 

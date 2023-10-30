@@ -21,7 +21,7 @@ public class MainMenu extends JPanel implements KeyListener {
 
     public MainMenu() throws IOException, FontFormatException{
         super();
-        setSize(770,652);
+        setPreferredSize(new Dimension(770, 652));
         addKeyListener(this);
     }
 
