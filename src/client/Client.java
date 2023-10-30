@@ -1,54 +1,66 @@
 package client;
+import common.Packet;
+import common.PacketHandler;
 
 import java.io.*;
-import java.net.*;
-import java.util.Scanner;
+import java.net.Socket;
 
 public class Client {
+    private ConnectionFrame connectionFrame;
+    private SpaceInvadersFrame spaceInvadersFrame;
+    private ServerCommunicator serverCommunicator;
+    public Client(){
+        connectionFrame = new ConnectionFrame("Space Invaders MP", this);
+        spaceInvadersFrame = new SpaceInvadersFrame("Space Invaders MP");
+        start();
+    }
+    private void start(){
+        connectionFrame.setVisible(true);
+    }
     public static void main(String[] args) {
-        String serverAddress = "127.0.0.1";
-        int serverPort = 12345;
+        new Client();
+    }
 
-        try {
-            Socket socket = new Socket(serverAddress, serverPort);
-            System.out.println("Connected to the server at " + serverAddress + ":" + serverPort);
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
-            // Start a thread to read and display messages from the server
-            Thread readThread = new Thread(new ServerReader(in));
-            readThread.start();
-
-            // Read and send messages from the client
-            Scanner scanner = new Scanner(System.in);
-            String message;
-            while (true) {
-                message = scanner.nextLine();
-                out.println(message);
-            }
+    public void handleConnectPress(String serverAddress, int serverPort, String playerName){
+        connectionFrame.setVisible(false);
+        spaceInvadersFrame.setVisible(true);
+        spaceInvadersFrame.appendToLog("Connecting to " + serverAddress + ":" + serverPort + " as <" + playerName + ">");
+        Socket serverSocket = connectToServer(serverAddress, serverPort);
+        if(serverSocket == null) {
+            spaceInvadersFrame.appendToLog("Connection failed!");
+            spaceInvadersFrame.setVisible(false);
+            connectionFrame.setVisible(true);
+            return;
+        }
+        ClientGameContext context = new ClientGameContext(spaceInvadersFrame);
+        PacketHandler packetHandler = new PacketHandler(context);
+        Thread packetHandlerThread = new Thread(packetHandler);
+        packetHandlerThread.start();
+        serverCommunicator = new ServerCommunicator(serverSocket, packetHandler);
+        serverCommunicator.sendPlayerName(playerName);
+        spaceInvadersFrame.appendToLog("CONNECTED! Requesting for id assignment...");
+        Thread serverCommunicatorThread = new Thread(serverCommunicator);
+        serverCommunicatorThread.start();
+        serverCommunicator.sendIdRequest();
+        int id = serverCommunicator.receiveId();
+        if(id == -10){
+            spaceInvadersFrame.appendToLog("SERVER ERROR! Did not receive an id");
+            spaceInvadersFrame.setVisible(false);
+            connectionFrame.setVisible(true);
+            return;
+        }
+        spaceInvadersFrame.appendToLog("SUCCESS! Received id is " + id);
+    }
+    private Socket connectToServer(String serverAddress, int serverPort){
+        Socket socket;
+        try{
+            socket = new Socket(serverAddress, serverPort);
+            return socket;
         } catch (IOException e) {
-            System.err.println("Client exception: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
         }
+        return null;
     }
 
-    private static class ServerReader implements Runnable {
-        private BufferedReader in;
 
-        public ServerReader(BufferedReader in) {
-            this.in = in;
-        }
-
-        @Override
-        public void run() {
-            String message;
-            try {
-                while ((message = in.readLine()) != null) {
-                    System.out.println("Server says: " + message);
-                }
-            } catch (IOException e) {
-                System.err.println("ServerReader error: " + e.getMessage());
-            }
-        }
-    }
 }

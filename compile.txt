@@ -1,4 +1,4 @@
-src/SpaceInvaders.java
+src/client.SpaceInvadersFrame.java
 src/AlienMan.java
 src/Bullet.java
 src/BulletMan.java

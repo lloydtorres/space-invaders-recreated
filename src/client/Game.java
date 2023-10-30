@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 ///// JPANEL CLASS (DRAWS GRAPHICS, LISTENS FOR KEY INPUT, CALLS FOR MOVES)
-public class GameContext extends JPanel implements KeyListener {
+public class Game extends JPanel implements KeyListener {
 
     private Cannon ship; // game elements generated in main class
     private AlienMan enemies;
@@ -31,7 +31,7 @@ public class GameContext extends JPanel implements KeyListener {
     private Font fontM = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,100);
     private Font fontS = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
 
-    public GameContext(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots) throws IOException, FontFormatException{
+    public Game(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots) throws IOException, FontFormatException{
         super();
         keys = new boolean[KeyEvent.KEY_LAST+1];
         ship = player;
