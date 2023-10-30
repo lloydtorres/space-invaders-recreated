@@ -8,6 +8,7 @@ public class Client {
     private ConnectionFrame connectionFrame;
     private SpaceInvadersFrame spaceInvadersFrame;
     private ServerHandler serverHandler;
+    private ClientPlayer thisPlayer;
     public Client(){
         connectionFrame = new ConnectionFrame("Space Invaders MP", this);
         spaceInvadersFrame = new SpaceInvadersFrame("Space Invaders MP");
@@ -31,30 +32,20 @@ public class Client {
             connectionFrame.setVisible(true);
             return;
         }
-        ClientGameContext context = new ClientGameContext(spaceInvadersFrame);
+        thisPlayer = new ClientPlayer();
+        thisPlayer.setName(playerName);
+        ClientGameContext context = new ClientGameContext(spaceInvadersFrame, thisPlayer);
         PacketHandler packetHandler = new PacketHandler(context);
         Thread packetHandlerThread = new Thread(packetHandler);
         packetHandlerThread.start();
         serverHandler = new ServerHandler(serverSocket, packetHandler);
         serverHandler.sendPlayerName(playerName);
-        spaceInvadersFrame.appendToLog("CONNECTED! Requesting for id assignment...");
-        Thread serverCommunicatorThread = new Thread(serverHandler);
-        serverCommunicatorThread.start();
-        serverHandler.sendIdRequest();
-        int id = serverHandler.receiveId();
-        if(id == -10){
-            spaceInvadersFrame.appendToLog("SERVER ERROR! Did not receive an id");
-            spaceInvadersFrame.setVisible(false);
-            connectionFrame.setVisible(true);
-            return;
-        }
-        spaceInvadersFrame.appendToLog("SUCCESS! Received id is " + id);
+        Thread serverHandlerThread = new Thread(serverHandler);
+        serverHandlerThread.start();
     }
     private Socket connectToServer(String serverAddress, int serverPort){
-        Socket socket;
         try{
-            socket = new Socket(serverAddress, serverPort);
-            return socket;
+            return new Socket(serverAddress, serverPort);
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
         }

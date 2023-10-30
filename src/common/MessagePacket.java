@@ -2,8 +2,8 @@ package common;
 
 public class MessagePacket extends Packet{
     private String message;
-    public MessagePacket(int packetType, int senderId, String message){
-        super(packetType, senderId);
+    public MessagePacket(int senderId, String message){
+        super(PacketTypes.MESSAGE, senderId);
         this.message = message;
     }
 
