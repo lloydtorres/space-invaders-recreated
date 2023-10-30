@@ -1,5 +1,4 @@
 package client;
-import common.Packet;
 import common.PacketHandler;
 
 import java.io.*;
@@ -8,7 +7,7 @@ import java.net.Socket;
 public class Client {
     private ConnectionFrame connectionFrame;
     private SpaceInvadersFrame spaceInvadersFrame;
-    private ServerCommunicator serverCommunicator;
+    private ServerHandler serverHandler;
     public Client(){
         connectionFrame = new ConnectionFrame("Space Invaders MP", this);
         spaceInvadersFrame = new SpaceInvadersFrame("Space Invaders MP");
@@ -36,13 +35,13 @@ public class Client {
         PacketHandler packetHandler = new PacketHandler(context);
         Thread packetHandlerThread = new Thread(packetHandler);
         packetHandlerThread.start();
-        serverCommunicator = new ServerCommunicator(serverSocket, packetHandler);
-        serverCommunicator.sendPlayerName(playerName);
+        serverHandler = new ServerHandler(serverSocket, packetHandler);
+        serverHandler.sendPlayerName(playerName);
         spaceInvadersFrame.appendToLog("CONNECTED! Requesting for id assignment...");
-        Thread serverCommunicatorThread = new Thread(serverCommunicator);
+        Thread serverCommunicatorThread = new Thread(serverHandler);
         serverCommunicatorThread.start();
-        serverCommunicator.sendIdRequest();
-        int id = serverCommunicator.receiveId();
+        serverHandler.sendIdRequest();
+        int id = serverHandler.receiveId();
         if(id == -10){
             spaceInvadersFrame.appendToLog("SERVER ERROR! Did not receive an id");
             spaceInvadersFrame.setVisible(false);

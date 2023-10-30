@@ -7,13 +7,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import common.*;
 
-public class ServerCommunicator implements Runnable {
+public class ServerHandler implements Runnable {
     private final Socket socket;
     private ObjectInputStream inStream;
     private ObjectOutputStream outStream;
     private final BlockingQueue<Packet> outgoingPacketQueue = new LinkedBlockingQueue<>();
     private PacketHandler packetHandler;
-    public ServerCommunicator(Socket socket, PacketHandler packetHandler) {
+    public ServerHandler(Socket socket, PacketHandler packetHandler) {
         this.socket = socket;
         this.packetHandler = packetHandler;
         try{
