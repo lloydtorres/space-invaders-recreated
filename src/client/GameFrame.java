@@ -44,14 +44,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 ///// MAIN CLASS
-public class SpaceInvadersFrame extends JFrame implements ActionListener{
+public class GameFrame extends JFrame implements ActionListener{
 
     private javax.swing.Timer myTimer;
-    private MainMenu menu; // first JPanel
     private boolean gameStart = false;
-    private int playerId;
     private Game game; // component classes of the game
-    private Cannon player;
+    private PlayerCannon player;
     private AlienMan enemies;
     private Scorekeeper scoreMan;
     private Shield shield;
@@ -61,20 +59,23 @@ public class SpaceInvadersFrame extends JFrame implements ActionListener{
     private int wave = 0; // # of wins by the user, keeps track of subsequent alien start location
     private Style logTextStyle;
     private StyledDocument logDocument;
-    public SpaceInvadersFrame(String title){
+    private Client client;
+    public GameFrame(String title, Client client){
         super(title);
-        playerId = -10;
+        this.client = client;
+    }
+    public void start(){
         try{
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             setSize(1000, 800);
 
             gamePanel = new JPanel();
             gamePanel.setBackground(Color.BLACK);
-            menu = new MainMenu();
+//            menu = new MainMenu();
             scoreMan = new Scorekeeper();
-            currentGameView = menu;
+//            currentGameView = menu;
 
-            changeGameView(menu);
+//            changeGameView(menu);
             JTextPane logText = new JTextPane();
             logText.setEditable(false);
             logText.setBackground(new Color(50, 50, 50));
@@ -89,16 +90,20 @@ public class SpaceInvadersFrame extends JFrame implements ActionListener{
             add(gamePanel, BorderLayout.CENTER);
             add(commandScrollPane, BorderLayout.WEST);
             appendToLog("Initialized");
-
+            startOverGame();
             myTimer = new javax.swing.Timer(10,this); // update every 10 ms
             myTimer.start();
             setResizable(false);
+            gameStart = true;
+            startOverGame();
         }catch (IOException e){
             e.printStackTrace();
         }catch (FontFormatException e){
             e.printStackTrace();
         }
-
+    }
+    public Game getGame(){
+        return game;
     }
     public void appendToLog(String logEntry){
         try {
@@ -115,7 +120,7 @@ public class SpaceInvadersFrame extends JFrame implements ActionListener{
             gamePanel.remove(currentGameView);
         }
         gamePanel.add(gameView, BorderLayout.LINE_START);
-        gamePanel.revalidate();
+        revalidate();
         currentGameView = gameView;
     }
     private void nextLevel() throws IOException, FontFormatException { // called every time user wins (all aliens destroyed), resets game setup
@@ -125,7 +130,7 @@ public class SpaceInvadersFrame extends JFrame implements ActionListener{
         player.addLife();
         enemies = new AlienMan(wave,scoreMan,player,shield);
         shotsFired = new BulletMan(player,enemies,shield);
-        game = new Game(player,enemies,scoreMan,shield,shotsFired);
+        game = new Game(player,enemies,scoreMan,shield,shotsFired, client);
         changeGameView(game);
     }
 
@@ -133,13 +138,13 @@ public class SpaceInvadersFrame extends JFrame implements ActionListener{
 
         appendToLog("Started game");
         wave = 0;
-        player = new Cannon();
+        player = new PlayerCannon("PlaceHolder", client);
         shield = new Shield();
         scoreMan.setShip(player);
         scoreMan.resetScore();
         enemies = new AlienMan(wave,scoreMan,player,shield);
         shotsFired = new BulletMan(player,enemies,shield);
-        game = new Game(player,enemies,scoreMan,shield,shotsFired);
+        game = new Game(player,enemies,scoreMan,shield,shotsFired, client);
         changeGameView(game);
     }
     
@@ -185,7 +190,6 @@ public class SpaceInvadersFrame extends JFrame implements ActionListener{
                 }
             }
             else {
-                gameStart = menu.getStatus();
                 if (gameStart){ // initialize if player starts game
                     // error handling in case font doesn't exist
                     try {
@@ -196,7 +200,6 @@ public class SpaceInvadersFrame extends JFrame implements ActionListener{
                         e.printStackTrace();
                     }
                 }
-                menu.repaint();
             }
         }
     }

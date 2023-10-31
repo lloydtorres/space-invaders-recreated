@@ -21,7 +21,7 @@ From the `space-invaders-recreated` directory on command line/terminal, enter th
 
 To run Space Invaders Recreated after compiling, enter:
 
-```$ java client.SpaceInvadersFrame```
+```$ java client.GameFrame```
 
 To enable Myo controls for the game, add `src/SpaceInvadersRecreated.myo` to Myo Connect's Application Manager.
 

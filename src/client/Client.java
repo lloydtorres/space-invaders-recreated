@@ -1,40 +1,56 @@
 package client;
+import common.Packet;
 import common.PacketHandler;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Client {
     private ConnectionFrame connectionFrame;
-    private SpaceInvadersFrame spaceInvadersFrame;
+    private GameFrame gameFrame;
     private ServerHandler serverHandler;
     private ClientPlayer thisPlayer;
+    private Map<Integer, ClientPlayer> otherPlayerList;
     public Client(){
         connectionFrame = new ConnectionFrame("Space Invaders MP", this);
-        spaceInvadersFrame = new SpaceInvadersFrame("Space Invaders MP");
+        gameFrame = new GameFrame("Space Invaders MP", this);
+        otherPlayerList = new ConcurrentHashMap<>();
         start();
+    }
+    public ClientPlayer getThisPlayer(){
+        return thisPlayer;
+    }
+    public void addPlayer(int id, ClientPlayer clientPlayer){
+        otherPlayerList.put(id, clientPlayer);
+    }
+    public void removePlayer(int id){
+        otherPlayerList.remove(id);
+    }
+    public void sendPacket(Packet packet){
+        serverHandler.enqueuePacket(packet);
     }
     private void start(){
         connectionFrame.setVisible(true);
     }
-    public static void main(String[] args) {
-        new Client();
-    }
 
     public void handleConnectPress(String serverAddress, int serverPort, String playerName){
         connectionFrame.setVisible(false);
-        spaceInvadersFrame.setVisible(true);
-        spaceInvadersFrame.appendToLog("Connecting to " + serverAddress + ":" + serverPort + " as <" + playerName + ">");
+        gameFrame.setVisible(true);
+        gameFrame.appendToLog("Connecting to " + serverAddress + ":" + serverPort + " as <" + playerName + ">");
         Socket serverSocket = connectToServer(serverAddress, serverPort);
         if(serverSocket == null) {
-            spaceInvadersFrame.appendToLog("Connection failed!");
-            spaceInvadersFrame.setVisible(false);
+            gameFrame.appendToLog("Connection failed!");
+            gameFrame.setVisible(false);
             connectionFrame.setVisible(true);
             return;
         }
-        thisPlayer = new ClientPlayer();
-        thisPlayer.setName(playerName);
-        ClientGameContext context = new ClientGameContext(spaceInvadersFrame, thisPlayer);
+        gameFrame.start();
+
+        gameFrame.getGame().setThisPlayerName(playerName);
+        thisPlayer = new ClientPlayer(playerName);
+        ClientGameContext context = new ClientGameContext(gameFrame, thisPlayer, this);
         PacketHandler packetHandler = new PacketHandler(context);
         Thread packetHandlerThread = new Thread(packetHandler);
         packetHandlerThread.start();
@@ -52,5 +68,7 @@ public class Client {
         return null;
     }
 
-
+    public static void main(String[] args) {
+        new Client();
+    }
 }

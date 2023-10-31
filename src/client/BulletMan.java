@@ -10,13 +10,13 @@ public class BulletMan {
     private Bullet playerShot = null;
     private ArrayList<Bullet> enemyShots = new ArrayList<Bullet>();
 
-    private Cannon player;
+    private PlayerCannon player;
     private AlienMan enemies;
     private Shield shield;
 
     private boolean canShoot = true;
 
-    public BulletMan(Cannon getPlayer, AlienMan getEnemies, Shield getShield){
+    public BulletMan(PlayerCannon getPlayer, AlienMan getEnemies, Shield getShield){
         player = getPlayer;
         enemies = getEnemies;
         shield = getShield;

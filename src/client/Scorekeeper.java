@@ -6,7 +6,7 @@ import java.io.*;
 ///// SCOREKEEPER CLASS (KEEPS TRACK OF AND DRAWS SCORE AND LIVES)
 public class Scorekeeper{
     private long score = 0; // user score
-    private Cannon ship;
+    private PlayerCannon ship;
 
     private File ttf = new File("fonts/visitor.ttf"); // font used to draw score, etc.
     private Font font = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
@@ -15,7 +15,7 @@ public class Scorekeeper{
     public Scorekeeper() throws IOException, FontFormatException {
 
     }
-    public void setShip(Cannon getShip) { ship = getShip; } // gets ship data from other classes
+    public void setShip(PlayerCannon getShip) { ship = getShip; } // gets ship data from other classes
 
     public void add(long toAdd){
         score += toAdd;

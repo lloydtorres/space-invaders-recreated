@@ -8,11 +8,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 ///// JPANEL CLASS (DRAWS GRAPHICS, LISTENS FOR KEY INPUT, CALLS FOR MOVES)
 public class Game extends JPanel implements KeyListener {
 
-    private Cannon ship; // game elements generated in main class
+    private PlayerCannon playerCannon; // game elements generated in main class
+    private Map<Integer, PlayerCannon> otherPlayerCannons;
     private AlienMan enemies;
     private Bullet shot; // bullet shot by user
     private Scorekeeper scoreMan;
@@ -31,45 +34,48 @@ public class Game extends JPanel implements KeyListener {
     private Font fontM = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,100);
     private Font fontS = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
 
-    public Game(Cannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots) throws IOException, FontFormatException{
+    private Client client;
+    public Game(PlayerCannon player, AlienMan badGuys, Scorekeeper getScore, Shield getShield, BulletMan getShots, Client client) throws IOException, FontFormatException{
         super();
         keys = new boolean[KeyEvent.KEY_LAST+1];
-        ship = player;
+        playerCannon = player;
+        otherPlayerCannons = new ConcurrentHashMap<>();
         enemies = badGuys;
         scoreMan = getScore;
         shield = getShield;
         shotsFired = getShots;
+        this.client = client;
 
         setPreferredSize(new Dimension(770, 652));
         addKeyListener(this);
     }
-
+    public void setThisPlayerName(String playerName){
+        this.playerCannon.setName(playerName);
+    }
     public void addNotify(){
         super.addNotify();
         requestFocus();
     }
+    public void addPlayerCannon(int id, String playerName){
+        otherPlayerCannons.put(id, new PlayerCannon(playerName, client));
+    }
+    public void removePlayerCannon(int id){
+        otherPlayerCannons.remove(id);
+    }
+    public void setPlayerPosition(int id, int pos){
+        otherPlayerCannons.get(id).setPos(pos);
+    }
 
     public void move(){ // takes in keyboard input and moves user cannon
-        if (keys[KeyEvent.VK_RIGHT] && (ship.getPos() + 5) <= 740) {
-            ship.right();
+        if (keys[KeyEvent.VK_RIGHT] && (playerCannon.getPos() + 5) <= 740) {
+            playerCannon.right();
         }
-        if (keys[KeyEvent.VK_LEFT] && (ship.getPos() - 5) >= 12) {
-            ship.left();
+        if (keys[KeyEvent.VK_LEFT] && (playerCannon.getPos() - 5) >= 12) {
+            playerCannon.left();
         }
         if (keys[KeyEvent.VK_SPACE] && shotsFired.playerCanShoot()) {
             // canShoot flag prevents user from shooting infinite bullets one after another
-            shotsFired.setPlayerShot(new Bullet(ship.getPos(), 556, Bullet.UP));
-
-            // play music
-            try {
-                SoundMan.play("playerShoot");
-            } catch (UnsupportedAudioFileException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (LineUnavailableException e) {
-                e.printStackTrace();
-            }
+            shotsFired.setPlayerShot(new Bullet(playerCannon.getPos(), 556, Bullet.UP));
         }
     }
 
@@ -104,7 +110,7 @@ public class Game extends JPanel implements KeyListener {
 
     // called to see if game is still in play
     public boolean stillPlaying(){
-        if (ship.getLives() <= 0){ // check if player is still alive
+        if (playerCannon.getLives() <= 0){ // check if player is still alive
             playing = false;
         }
         if (enemies.reachedBottom()){
@@ -146,7 +152,10 @@ public class Game extends JPanel implements KeyListener {
         backDraw(g);
         if (playing){ // while game is still ongoing
             shield.draw(g);
-            ship.draw(g);
+            playerCannon.draw(g);
+            for(PlayerCannon cannon : otherPlayerCannons.values()){
+                cannon.draw(g);
+            }
             shotsFired.draw(g);
                enemies.draw(g);
         }

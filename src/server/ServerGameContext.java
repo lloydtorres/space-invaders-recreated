@@ -1,10 +1,12 @@
 package server;
 
-import common.GameContext;
-import common.IdPacket;
-import common.MessagePacket;
+import common.*;
 
 public class ServerGameContext implements GameContext {
+    private Server server;
+    public ServerGameContext(Server server){
+        this.server = server;
+    }
     @Override
     public void processReceivedMessage(MessagePacket packet) {
         return;
@@ -13,5 +15,20 @@ public class ServerGameContext implements GameContext {
     @Override
     public void changePlayerId(IdPacket packet) {
         return;
+    }
+
+    @Override
+    public void addPlayer(PlayerAddPacket packet) {
+        return;
+    }
+    @Override
+    public void removePlayer(PlayerRemovePacket packet) {
+        return;
+    }
+
+    @Override
+    public void movePlayer(MovePacket packet) {
+        server.updateServerPlayerPosition(packet.getSenderId(), packet.getxCoord());
+        server.broadcastPacket(packet);
     }
 }

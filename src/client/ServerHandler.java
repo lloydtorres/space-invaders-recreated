@@ -29,29 +29,9 @@ public class ServerHandler implements Runnable {
     }
     private void sendPacket(Packet packet) {
         try {
-            outStream.writeInt(packet.getPacketType());
-            outStream.flush();
             outStream.writeObject(packet);
             outStream.flush();
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public int receiveId(){
-
-        try{
-            int id = inStream.readInt();
-            return id;
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        return -10;
-    }
-    public void sendIdRequest(){
-        try{
-            outStream.writeInt(-5);
-            outStream.flush();
-        }catch(IOException e){
             e.printStackTrace();
         }
     }

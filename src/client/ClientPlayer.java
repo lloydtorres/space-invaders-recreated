@@ -5,8 +5,8 @@ import server.ClientHandler;
 public class ClientPlayer {
     private int id;
     private String name;
-    public ClientPlayer(){
-
+    public ClientPlayer(String playerName){
+        name = playerName;
     }
 
     public int getId() {
