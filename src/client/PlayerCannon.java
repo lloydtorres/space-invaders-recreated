@@ -1,13 +1,9 @@
 package client;
 
-import common.MovePacket;
+import common.packets.MovePacket;
 
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.util.ArrayList;
 
 ///// CANNON CLASS (CONTROLS AND DRAWS USER'S CANNON)

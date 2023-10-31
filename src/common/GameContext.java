@@ -1,9 +1,12 @@
 package common;
 
+import common.packets.*;
+
+// Game context interface that is used on client and server. These methods allow packets to make changes on client or server
 public interface GameContext {
-    void processReceivedMessage(MessagePacket packet);
-    void changePlayerId(IdPacket packet);
-    void addPlayer(PlayerAddPacket packet);
-    void removePlayer(PlayerRemovePacket packet);
-    void movePlayer(MovePacket packet);
+    void processMessagePacket(MessagePacket packet);
+    void processIdPacket(IdPacket packet);
+    void processPlayerAddPacket(PlayerAddPacket packet);
+    void processPlayerRemovePacket(PlayerRemovePacket packet);
+    void processMovePacket(MovePacket packet);
 }

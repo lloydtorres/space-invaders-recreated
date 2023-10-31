@@ -1,6 +1,7 @@
 package client;
 
 import common.*;
+import common.packets.*;
 
 public class ClientGameContext implements GameContext {
     private GameFrame gameFrame;
@@ -12,12 +13,12 @@ public class ClientGameContext implements GameContext {
         this.client = client;
     }
     @Override
-    public void processReceivedMessage(MessagePacket packet) {
+    public void processMessagePacket(MessagePacket packet) {
         gameFrame.appendToLog(packet.getMessage());
     }
 
     @Override
-    public void changePlayerId(IdPacket packet) {
+    public void processIdPacket(IdPacket packet) {
         if(packet.getSenderId() == Configuration.SERVER_ID){
             thisPlayer.setId(packet.getNewId());
             gameFrame.appendToLog("This client's ID on server is " + packet.getNewId());
@@ -25,7 +26,7 @@ public class ClientGameContext implements GameContext {
     }
 
     @Override
-    public void addPlayer(PlayerAddPacket packet) {
+    public void processPlayerAddPacket(PlayerAddPacket packet) {
         if(packet.getPlayerId() == thisPlayer.getId()){
             return;
         }
@@ -36,7 +37,7 @@ public class ClientGameContext implements GameContext {
     }
 
     @Override
-    public void removePlayer(PlayerRemovePacket packet) {
+    public void processPlayerRemovePacket(PlayerRemovePacket packet) {
         if(packet.getPlayerId() == thisPlayer.getId()){
             return;
         }
@@ -44,7 +45,7 @@ public class ClientGameContext implements GameContext {
         gameFrame.getGame().removePlayerCannon(packet.getPlayerId());
     }
     @Override
-    public void movePlayer(MovePacket packet){
+    public void processMovePacket(MovePacket packet){
         if(packet.getSenderId() == thisPlayer.getId()){
             return;
         }

@@ -1,4 +1,6 @@
-package common;
+package common.packets;
+
+import common.GameContext;
 
 import java.io.Serializable;
 

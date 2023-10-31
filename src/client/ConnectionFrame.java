@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+// This is a connection frame where server address, server port and player name are entered
+// Pressing the button calls a method in the client class
 public class ConnectionFrame extends JFrame {
     public ConnectionFrame(String title, Client listenerClient){
         super(title);

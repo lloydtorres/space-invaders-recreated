@@ -1,6 +1,7 @@
 package server;
 
 import common.*;
+import common.packets.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,6 +11,11 @@ import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+// Handles communication between server and client. Client handler must be run on a separate thread.
+// Packets ar queued in this class to be sent to client
+// Packets ar received in this class and dispatched to PacketHandler
+// Receiving and sending is done on separate threads.
+// Also handles disconnect
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private ObjectInputStream clientIn;

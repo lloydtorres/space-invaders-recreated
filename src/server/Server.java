@@ -7,7 +7,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import common.*;
+import common.packets.MessagePacket;
+import common.packets.MovePacket;
+import common.packets.Packet;
+import common.packets.PlayerAddPacket;
 
+// main server class. waits for client connections, assigns them their unique ids
+// creates client handlers for each client
+// should also handle game session
 public class Server {
     private ServerSocket serverSocket;
     private Map<Integer, ServerPlayer> connectedPlayers;

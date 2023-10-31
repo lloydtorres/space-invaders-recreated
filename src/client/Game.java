@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 ///// JPANEL CLASS (DRAWS GRAPHICS, LISTENS FOR KEY INPUT, CALLS FOR MOVES)
+// ^^^ Technically true, but all this logic should be implemented on server and only graphics drawing left here
 public class Game extends JPanel implements KeyListener {
 
     private PlayerCannon playerCannon; // game elements generated in main class

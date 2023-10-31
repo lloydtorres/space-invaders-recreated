@@ -1,4 +1,7 @@
-package common;
+package common.packets;
+
+import common.GameContext;
+import common.PacketTypes;
 
 public class MovePacket extends Packet{
     private int xCoord;
@@ -8,7 +11,7 @@ public class MovePacket extends Packet{
     }
     @Override
     public void handle(GameContext context) {
-        context.movePlayer(this);
+        context.processMovePacket(this);
     }
     public int getxCoord() {
         return xCoord;

@@ -1,5 +1,5 @@
 package client;
-import common.Packet;
+import common.packets.Packet;
 import common.PacketHandler;
 
 import java.io.*;
@@ -35,6 +35,7 @@ public class Client {
         connectionFrame.setVisible(true);
     }
 
+    // This is called when "Connect" button is pressed
     public void handleConnectPress(String serverAddress, int serverPort, String playerName){
         connectionFrame.setVisible(false);
         gameFrame.setVisible(true);

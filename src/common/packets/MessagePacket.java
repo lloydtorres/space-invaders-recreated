@@ -1,4 +1,7 @@
-package common;
+package common.packets;
+
+import common.GameContext;
+import common.PacketTypes;
 
 public class MessagePacket extends Packet{
     private String message;
@@ -12,6 +15,6 @@ public class MessagePacket extends Packet{
     }
     @Override
     public void handle(GameContext context) {
-        context.processReceivedMessage(this);
+        context.processMessagePacket(this);
     }
 }

@@ -1,4 +1,7 @@
-package common;
+package common.packets;
+
+import common.GameContext;
+import common.PacketTypes;
 
 public class PlayerRemovePacket extends Packet{
     private int playerId;
@@ -9,7 +12,7 @@ public class PlayerRemovePacket extends Packet{
 
     @Override
     public void handle(GameContext context) {
-        context.removePlayer(this);
+        context.processPlayerRemovePacket(this);
     }
 
     public int getPlayerId() {

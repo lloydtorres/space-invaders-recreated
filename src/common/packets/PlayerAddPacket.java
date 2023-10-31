@@ -1,4 +1,7 @@
-package common;
+package common.packets;
+
+import common.GameContext;
+import common.PacketTypes;
 
 public class PlayerAddPacket extends Packet{
     private String playerName;
@@ -11,7 +14,7 @@ public class PlayerAddPacket extends Packet{
 
     @Override
     public void handle(GameContext context) {
-        context.addPlayer(this);
+        context.processPlayerAddPacket(this);
     }
 
     public String getPlayerName() {

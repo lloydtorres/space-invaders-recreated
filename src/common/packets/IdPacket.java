@@ -1,4 +1,7 @@
-package common;
+package common.packets;
+
+import common.GameContext;
+import common.PacketTypes;
 
 public class IdPacket extends Packet{
     private int newId;
@@ -12,6 +15,6 @@ public class IdPacket extends Packet{
     }
     @Override
     public void handle(GameContext context){
-        context.changePlayerId(this);
+        context.processIdPacket(this);
     }
 }

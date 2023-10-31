@@ -6,7 +6,9 @@ import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import common.*;
+import common.packets.Packet;
 
+// Almost the same as Client handler
 public class ServerHandler implements Runnable {
     private final Socket socket;
     private ObjectInputStream inStream;

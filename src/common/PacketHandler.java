@@ -1,8 +1,12 @@
 package common;
 
+import common.packets.Packet;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+// Packet handler receives packets into a queue (usually from Server or Client handlers)
+// and calls each one's handle method passing gameContext.
 public class PacketHandler implements Runnable{
     private GameContext gameContext;
     private BlockingQueue<Packet> packetQueue;

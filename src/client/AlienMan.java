@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 ///// ALIEN TRACKER CLASS (CONTROLS MOVEMENT OF ALIENS)
+// This also should only be used for drawing aliens on coordinates received from server
 public class AlienMan {
     public static final int LEFT = -1; // used to specify if aliens are going left or right
     public static final int RIGHT = 1;

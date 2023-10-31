@@ -43,7 +43,8 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-///// MAIN CLASS
+// This is the main game window with Log on the side. It handles game views and assembles the main game JPanel.
+// Previously this was the main class.
 public class GameFrame extends JFrame implements ActionListener{
 
     private javax.swing.Timer myTimer;
