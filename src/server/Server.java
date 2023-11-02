@@ -14,7 +14,7 @@ import common.packets.PlayerAddPacket;
 
 // main server class. waits for client connections, assigns them their unique ids
 // creates client handlers for each client
-// should also handle game session
+// game loop should be handled here
 public class Server {
     private ServerSocket serverSocket;
     private Map<Integer, ServerPlayer> connectedPlayers;
