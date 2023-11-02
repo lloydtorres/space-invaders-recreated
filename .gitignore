@@ -1,5 +1,4 @@
 *.class
-src/client/hiscore.txt
 
 # IntelliJ stuff
 .idea/
