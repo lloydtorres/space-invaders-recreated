@@ -1,4 +1,4 @@
-/*
+package client;/*
 ========================================
 Space Invaders Recreated
 by Lloyd Torres
@@ -29,84 +29,132 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 ///// MODULES TO IMPORT
+
+
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
-///// MAIN CLASS
-public class SpaceInvaders extends JFrame implements ActionListener{
+// This is the main game window with Log on the side. It handles game views and assembles the main game JPanel.
+// Previously this was the main class.
+public class GameFrame extends JFrame implements ActionListener{
 
     private javax.swing.Timer myTimer;
-
-    private MainMenu menu; // first JPanel
     private boolean gameStart = false;
-
-    private Overseer overseer; // component classes of the game
-    private Cannon player;
+    private Game game; // component classes of the game
+    private PlayerCannon player;
     private AlienMan enemies;
     private Scorekeeper scoreMan;
     private Shield shield;
     private BulletMan shotsFired;
+    private JPanel gamePanel;
+    private JPanel currentGameView;
     private int wave = 0; // # of wins by the user, keeps track of subsequent alien start location
-    
-    public SpaceInvaders() throws IOException, FontFormatException{
-        super("Space Invaders Recreated");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        setLayout(null);
-        setSize(770,652);
-
-        menu = new MainMenu();
-        scoreMan = new Scorekeeper();
-
-        menu.setHiScore(scoreMan.getHiScore());
-
-        add(menu);
-
-        myTimer = new javax.swing.Timer(10,this); // update every 10 ms
-        myTimer.start();
-        
-        setResizable(false);
-        setVisible(true);
+    private Style logTextStyle;
+    private StyledDocument logDocument;
+    private Client client;
+    public GameFrame(String title, Client client){
+        super(title);
+        this.client = client;
     }
-    
+    public void start(){
+        try{
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setSize(1000, 800);
+
+            gamePanel = new JPanel();
+            gamePanel.setBackground(Color.BLACK);
+//            menu = new MainMenu();
+            scoreMan = new Scorekeeper();
+//            currentGameView = menu;
+
+//            changeGameView(menu);
+            JTextPane logText = new JTextPane();
+            logText.setEditable(false);
+            logText.setBackground(new Color(50, 50, 50));
+            logText.setBorder(null);
+            logDocument = logText.getStyledDocument();
+            logTextStyle = logText.addStyle("Color Style", null);
+            StyleConstants.setForeground(logTextStyle, Color.YELLOW);
+            JScrollPane commandScrollPane = new JScrollPane(logText);
+            commandScrollPane.setPreferredSize(new Dimension(200, 800));
+            commandScrollPane.setBorder(null);
+            setLayout(new BorderLayout());
+            add(gamePanel, BorderLayout.CENTER);
+            add(commandScrollPane, BorderLayout.WEST);
+            appendToLog("Initialized");
+            startOverGame();
+            myTimer = new javax.swing.Timer(10,this); // update every 10 ms
+            myTimer.start();
+            setResizable(false);
+            gameStart = true;
+            startOverGame();
+        }catch (IOException e){
+            e.printStackTrace();
+        }catch (FontFormatException e){
+            e.printStackTrace();
+        }
+    }
+    public Game getGame(){
+        return game;
+    }
+    public void appendToLog(String logEntry){
+        try {
+            if(logDocument != null){
+                logDocument.insertString(logDocument.getLength(), "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] " + logEntry + "\n", logTextStyle);
+                System.out.println("[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] " + logEntry);
+            }
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+    private void changeGameView(JPanel gameView){
+        if(currentGameView != null){
+            gamePanel.remove(currentGameView);
+        }
+        gamePanel.add(gameView, BorderLayout.LINE_START);
+        revalidate();
+        currentGameView = gameView;
+    }
     private void nextLevel() throws IOException, FontFormatException { // called every time user wins (all aliens destroyed), resets game setup
-        remove(overseer);
         if (wave < 10){
             wave += 1;
         }
         player.addLife();
         enemies = new AlienMan(wave,scoreMan,player,shield);
         shotsFired = new BulletMan(player,enemies,shield);
-        overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
-        add(overseer);
+        game = new Game(player,enemies,scoreMan,shield,shotsFired, client);
+        changeGameView(game);
     }
 
     private void startOverGame() throws IOException, FontFormatException {
 
-        if (overseer != null){
-            remove(overseer);
-        }
-
+        appendToLog("Started game");
         wave = 0;
-        player = new Cannon();
+        player = new PlayerCannon("PlaceHolder", client);
         shield = new Shield();
         scoreMan.setShip(player);
         scoreMan.resetScore();
         enemies = new AlienMan(wave,scoreMan,player,shield);
         shotsFired = new BulletMan(player,enemies,shield);
-        overseer = new Overseer(player,enemies,scoreMan,shield,shotsFired);
-        add(overseer);
+        game = new Game(player,enemies,scoreMan,shield,shotsFired, client);
+        changeGameView(game);
     }
     
     public void actionPerformed(ActionEvent evt){ // event listener stuff, update classes every 10 ms
         Object source = evt.getSource();
         if(source == myTimer){
             if (gameStart) {
-                if (overseer.stillPlaying() && !overseer.isPaused() && !player.gotHit()) { // only move when not paused and player still alive
-                    overseer.move(); // move player
+                if (game.stillPlaying() && !game.isPaused() && !player.gotHit()) { // only move when not paused and player still alive
+                    game.move(); // move player
                     if (enemies.metronome()) { // if aliens have moved
                         shotsFired.setAlienShots(enemies.attack()); // launch attack
                     }
@@ -114,12 +162,11 @@ public class SpaceInvaders extends JFrame implements ActionListener{
                     shotsFired.trackBullets(); // move shots if they exist
                 }
 
-                if (!overseer.stillPlaying()) {
+                if (!game.stillPlaying()) {
                     enemies.ufoDestroy();
-                    scoreMan.calculateHiScore();
                 }
 
-                overseer.repaint();
+                game.repaint();
 
                 if (enemies.aliensGone()) { // if no aliens left
                     // error handling in case font doesn't exist
@@ -132,7 +179,7 @@ public class SpaceInvaders extends JFrame implements ActionListener{
                     }
                 }
 
-                if (overseer.doRestartGame()) { // check if player wants to restart game
+                if (game.doRestartGame()) { // check if player wants to restart game
                     // error handling in case font doesn't exist
                     try {
                         startOverGame();
@@ -144,10 +191,7 @@ public class SpaceInvaders extends JFrame implements ActionListener{
                 }
             }
             else {
-                gameStart = menu.getStatus();
                 if (gameStart){ // initialize if player starts game
-                    remove(menu);
-
                     // error handling in case font doesn't exist
                     try {
                         startOverGame();
@@ -157,12 +201,8 @@ public class SpaceInvaders extends JFrame implements ActionListener{
                         e.printStackTrace();
                     }
                 }
-                menu.repaint();
             }
         }
     }
-    
-    public static void main(String[]args) throws IOException, FontFormatException{
-        new SpaceInvaders();
-    }
+
 }

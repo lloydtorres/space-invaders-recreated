@@ -1,3 +1,5 @@
+package client;
+
 import java.awt.*;
 
 ///// BULLET CLASS (CONTROLS AND DRAWS USER'S BULLETS)

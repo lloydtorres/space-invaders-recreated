@@ -1,3 +1,5 @@
+package client;
+
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -7,11 +9,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 ///// ALIEN TRACKER CLASS (CONTROLS MOVEMENT OF ALIENS)
+// This also should only be used for drawing aliens on coordinates received from server
 public class AlienMan {
     public static final int LEFT = -1; // used to specify if aliens are going left or right
     public static final int RIGHT = 1;
 
-    private Cannon ship; // elements from main class
+    private PlayerCannon ship; // elements from main class
     private Shield shield;
 
     private Enemy aliens[][] = new Enemy[5][11]; // 2D array keeping track of each individual alien
@@ -34,7 +37,7 @@ public class AlienMan {
     private Scorekeeper score;
     private Random coin = new Random(); // used for chance events
 
-    public AlienMan(int wave, Scorekeeper getScore, Cannon getShip, Shield getShield){
+    public AlienMan(int wave, Scorekeeper getScore, PlayerCannon getShip, Shield getShield){
         ship = getShip;
         score = getScore;
         shield = getShield;
@@ -81,17 +84,6 @@ public class AlienMan {
                             beatModifier = Math.max(1, beatModifier - 1); // make aliens move faster
                             noEnemies -= 1;
 
-                            // play music
-                            try {
-                                SoundMan.play("alienShot");
-                            } catch (UnsupportedAudioFileException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } catch (LineUnavailableException e) {
-                                e.printStackTrace();
-                            }
-
                             break;
                         }
                     }
@@ -116,18 +108,6 @@ public class AlienMan {
     public void ufoTrack(){ // used to generate and move random UFO
         if (coin.nextInt(5000) == 0 && ufo == null){ // generate new UFO
             ufo = new Enemy(4,770,45);
-
-            // play music
-            try {
-                ufoMusic = SoundMan.play("ufo");
-                ufoMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            } catch (UnsupportedAudioFileException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (LineUnavailableException e) {
-                e.printStackTrace();
-            }
         }
         if (ufo != null && beatCount%2==0){ // move UFO
             ufo.smoothLeft();
@@ -247,16 +227,6 @@ public class AlienMan {
             beat = 1 - beat; // flips between 1 and 0
             beatCount = 0;
 
-            // play music
-            try {
-                SoundMan.play(Integer.toString(musicCount));
-            } catch (UnsupportedAudioFileException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (LineUnavailableException e) {
-                e.printStackTrace();
-            }
 
             musicCount += 1;
             if (musicCount > 4){
