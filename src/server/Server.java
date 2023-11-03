@@ -55,6 +55,9 @@ public class Server {
             }
         }
     }
+    public void sendPacketToPlayer(Packet packet, int playerId){
+        connectedPlayers.get(playerId).getClientHandler().enqueuePacket(packet);
+    }
     public void broadcastMessage(String message) {
         broadcastPacket(new MessagePacket(Configuration.SERVER_ID, message));
     }
