@@ -91,6 +91,7 @@ public class ClientHandler implements Runnable {
             server.broadcastMessage("Player <" + playerName + "> joined the server!");
             server.appendLineToLog("New client connected: " + clientSocket.getInetAddress() + " as <" + serverPlayer.getPlayerName() + ">");
             server.broadcastPacket(new PlayerAddPacket(Configuration.SERVER_ID, playerName, playerId));
+            server.broadcastPacket(new MovePacket(playerId, serverPlayer.getxCoord()));
             // Put this player and its socket into the players map
             server.addServerPlayer(playerId, serverPlayer);
             enqueuePacket(new IdPacket(Configuration.SERVER_ID, playerId));
