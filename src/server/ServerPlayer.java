@@ -1,7 +1,5 @@
 package server;
 
-import client.Client;
-
 import java.net.Socket;
 
 public class ServerPlayer {
@@ -10,6 +8,7 @@ public class ServerPlayer {
     private Socket socket;
     private ClientHandler clientHandler;
     private int xCoord;
+
     public ServerPlayer(String playerName, int id, Socket socket, ClientHandler clientHandler) {
         this.playerName = playerName;
         this.id = id;
@@ -18,8 +17,8 @@ public class ServerPlayer {
         xCoord = 90;
     }
 
-    public void setxCoord(int xCoord) {
-        this.xCoord = xCoord;
+    public void setX(int x) {
+        this.xCoord = x;
     }
 
     public int getxCoord() {
@@ -29,8 +28,17 @@ public class ServerPlayer {
     public String getPlayerName() {
         return playerName;
     }
-    public int getId(){ return id; }
-    public Socket getSocket() { return socket;  }
-    public ClientHandler getClientHandler(){ return clientHandler; }
+
+    public int getId() {
+        return id;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public ClientHandler getClientHandler() {
+        return clientHandler;
+    }
 
 }

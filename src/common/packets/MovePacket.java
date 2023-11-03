@@ -4,16 +4,16 @@ import common.GameContext;
 import common.PacketTypes;
 
 public class MovePacket extends Packet{
-    private int xCoord;
-    public MovePacket(int senderId, int xCoord){
+    private int x;
+    public MovePacket(int senderId, int x){
         super(PacketTypes.MOVE, senderId);
-        this.xCoord = xCoord;
+        this.x = x;
     }
     @Override
     public void handle(GameContext context) {
         context.processMovePacket(this);
     }
-    public int getxCoord() {
-        return xCoord;
+    public int getX() {
+        return x;
     }
 }

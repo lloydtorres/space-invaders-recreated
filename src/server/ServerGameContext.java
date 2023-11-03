@@ -30,7 +30,11 @@ public class ServerGameContext implements GameContext {
     // should be changed when game session is implemented on the server
     @Override
     public void processMovePacket(MovePacket packet) {
-        server.updateServerPlayerPosition(packet.getSenderId(), packet.getxCoord());
-        server.broadcastPacket(packet);
+        server.updateServerPlayerPosition(packet.getSenderId(), packet.getX());
+    }
+
+    @Override
+    public void processShotPacket(ShotPacket packet) {
+
     }
 }

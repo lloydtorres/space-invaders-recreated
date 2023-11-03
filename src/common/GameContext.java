@@ -9,4 +9,6 @@ public interface GameContext {
     void processPlayerAddPacket(PlayerAddPacket packet);
     void processPlayerRemovePacket(PlayerRemovePacket packet);
     void processMovePacket(MovePacket packet);
+    void processShotPacket(ShotPacket packet);
+
 }

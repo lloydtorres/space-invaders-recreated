@@ -7,11 +7,13 @@ public class ClientGameContext implements GameContext {
     private GameFrame gameFrame;
     private ClientPlayer thisPlayer;
     private Client client;
-    public ClientGameContext(GameFrame gameFrame, ClientPlayer clientPlayer, Client client){
+
+    public ClientGameContext(GameFrame gameFrame, ClientPlayer clientPlayer, Client client) {
         this.gameFrame = gameFrame;
         thisPlayer = clientPlayer;
         this.client = client;
     }
+
     @Override
     public void processMessagePacket(MessagePacket packet) {
         gameFrame.appendToLog(packet.getMessage());
@@ -19,7 +21,7 @@ public class ClientGameContext implements GameContext {
 
     @Override
     public void processIdPacket(IdPacket packet) {
-        if(packet.getSenderId() == Configuration.SERVER_ID){
+        if (packet.getSenderId() == Configuration.SERVER_ID) {
             thisPlayer.setId(packet.getNewId());
             gameFrame.appendToLog("This client's ID on server is " + packet.getNewId());
         }
@@ -38,17 +40,24 @@ public class ClientGameContext implements GameContext {
 
     @Override
     public void processPlayerRemovePacket(PlayerRemovePacket packet) {
-        if(packet.getPlayerId() == thisPlayer.getId()){
+        if (packet.getPlayerId() == thisPlayer.getId()) {
             return;
         }
         client.removePlayer(packet.getPlayerId());
         gameFrame.getGame().removePlayerCannon(packet.getPlayerId());
     }
+
     @Override
     public void processMovePacket(MovePacket packet){
         if(packet.getSenderId() == thisPlayer.getId()){
+            gameFrame.getGame().setThisPlayerPosition(packet.getX());
             return;
         }
-        gameFrame.getGame().setPlayerPosition(packet.getSenderId(), packet.getxCoord());
+        gameFrame.getGame().setPlayerPosition(packet.getSenderId(), packet.getX());
+    }
+
+    @Override
+    public void processShotPacket(ShotPacket packet) {
+
     }
 }

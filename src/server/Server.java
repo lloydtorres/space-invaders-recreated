@@ -1,4 +1,5 @@
 package server;
+
 import java.io.*;
 import java.net.*;
 import java.time.LocalTime;
@@ -17,8 +18,11 @@ import common.packets.PlayerAddPacket;
 // game loop should be handled here
 public class Server {
     private ServerSocket serverSocket;
-    private Map<Integer, ServerPlayer> connectedPlayers;
+    private final Map<Integer, ServerPlayer> connectedPlayers;
     private int IDCounter = 0;
+    private final int RIGHT_EDGE = 740;
+    private final int LEFT_EDGE = 12;
+
     public Server(int port) {
         connectedPlayers = new ConcurrentHashMap<>();
 
@@ -28,15 +32,22 @@ public class Server {
             e.printStackTrace();
         }
     }
-    public void addServerPlayer(int id, ServerPlayer serverPlayer){
+
+    public void addServerPlayer(int id, ServerPlayer serverPlayer) {
         connectedPlayers.put(id, serverPlayer);
     }
-    public void removeServerPlayer(int id){
+
+    public void removeServerPlayer(int id) {
         connectedPlayers.remove(id);
     }
-    public void updateServerPlayerPosition(int id, int xCoord){
-        connectedPlayers.get(id).setxCoord(xCoord);
+
+    public void updateServerPlayerPosition(int id, int x) {
+        if (x >= LEFT_EDGE && x <= RIGHT_EDGE) {
+            connectedPlayers.get(id).setX(x);
+            broadcastPacket(new MovePacket(id, x));
+        }
     }
+
     public void start() {
         appendLineToLog("Server is running on port " + serverSocket.getLocalPort() + ". Waiting for clients...");
         ServerGameContext context = new ServerGameContext(this);
@@ -55,24 +66,28 @@ public class Server {
             }
         }
     }
-    public void sendPacketToPlayer(Packet packet, int playerId){
+
+    public void sendPacketToPlayer(Packet packet, int playerId) {
         connectedPlayers.get(playerId).getClientHandler().enqueuePacket(packet);
     }
+
     public void broadcastMessage(String message) {
         broadcastPacket(new MessagePacket(Configuration.SERVER_ID, message));
     }
-    public void broadcastPacket(Packet packet){
-        for(ServerPlayer serverPlayer : connectedPlayers.values()){
+
+    public void broadcastPacket(Packet packet) {
+        for (ServerPlayer serverPlayer : connectedPlayers.values()) {
             serverPlayer.getClientHandler().enqueuePacket(packet);
         }
     }
-    public void appendLineToLog(String logEntry){
+
+    public void appendLineToLog(String logEntry) {
         System.out.println("[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] " + logEntry);
     }
 
-    public void sendAllPlayersToPlayer(int playerId){
+    public void sendAllPlayersToPlayer(int playerId) {
         ClientHandler clientHandler = connectedPlayers.get(playerId).getClientHandler();
-        for (ServerPlayer serverPlayer : connectedPlayers.values()){
+        for (ServerPlayer serverPlayer : connectedPlayers.values()) {
             clientHandler.enqueuePacket(new PlayerAddPacket(Configuration.SERVER_ID, serverPlayer.getPlayerName(), serverPlayer.getId()));
             clientHandler.enqueuePacket(new MovePacket(serverPlayer.getId(), serverPlayer.getxCoord()));
         }
@@ -83,6 +98,4 @@ public class Server {
         Server server = new Server(port);
         server.start();
     }
-
-
 }

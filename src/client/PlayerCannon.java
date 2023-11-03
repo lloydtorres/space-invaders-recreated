@@ -41,15 +41,11 @@ public class PlayerCannon {
 
     // these two functions move user left or right by 5 units
     public void right(){
-        pos += 5;
-        client.sendPacket(new MovePacket(client.getThisPlayer().getId(), pos));
-        updateRect();
+        client.sendPacket(new MovePacket(client.getThisPlayer().getId(), pos + 5));
     }
 
     public void left(){
-        pos -= 5;
-        client.sendPacket(new MovePacket(client.getThisPlayer().getId(), pos));
-        updateRect();
+        client.sendPacket(new MovePacket(client.getThisPlayer().getId(), pos - 5));
     }
 
     private void updateRect(){
@@ -94,7 +90,7 @@ public class PlayerCannon {
             g.drawImage(imgShip,pos-12,570,null);
         }
         // draws broken ship when hit
-        else if (gotShot){
+        else {
             counter++;
             if (counter%5 == 0){
                 curImage = 1 - curImage; // flips between 1 and 0
@@ -105,11 +101,6 @@ public class PlayerCannon {
             else{
                 g.drawImage(shipDown1,pos-12,570,null);
             }
-        }
-        else {
-            pos = 366;
-            gotShot = false;
-            counter = 0;
         }
     }
 

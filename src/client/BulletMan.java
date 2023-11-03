@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class BulletMan {
 
     private Bullet playerShot = null;
-    private ArrayList<Bullet> enemyShots = new ArrayList<Bullet>();
+    private ArrayList<Bullet> enemyShots = new ArrayList<>();
 
     private PlayerCannon player;
     private AlienMan enemies;
@@ -42,8 +42,7 @@ public class BulletMan {
 
             playerShot.move(); // move player bullet
 
-            boolean shieldHit = false;
-            shieldHit = shield.collide(playerShot.getRect()); // check if bullet hits shield
+            boolean shieldHit = shield.collide(playerShot.getRect()); // check if bullet hits shield
             if (shieldHit){
                 playerShot = null;
                 canShoot = true;
@@ -58,8 +57,7 @@ public class BulletMan {
         for (int i=0;i<enemyShots.size();i++){
             if (enemyShots.get(i) != null){
                 enemyShots.get(i).move();
-                boolean hitTest = false; // sees if alien bullets have hit shield
-                hitTest = shield.collide(enemyShots.get(i).getRect());
+                boolean hitTest = shield.collide(enemyShots.get(i).getRect()); // sees if alien bullets have hit shield
                 if (hitTest){
                     enemyShots.set(i,null);
                 }
