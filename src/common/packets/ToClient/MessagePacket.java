@@ -1,9 +1,10 @@
-package common.packets;
+package common.packets.ToClient;
 
 import common.GameContext;
 import common.PacketTypes;
+import common.packets.Packet;
 
-public class MessagePacket extends Packet{
+public class MessagePacket extends Packet {
     private String message;
     public MessagePacket(int senderId, String message){
         super(PacketTypes.MESSAGE, senderId);

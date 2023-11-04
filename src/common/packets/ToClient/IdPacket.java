@@ -1,9 +1,10 @@
-package common.packets;
+package common.packets.ToClient;
 
 import common.GameContext;
 import common.PacketTypes;
+import common.packets.Packet;
 
-public class IdPacket extends Packet{
+public class IdPacket extends Packet {
     private int newId;
     public IdPacket(int senderId, int newId){
         super(PacketTypes.ID, senderId);

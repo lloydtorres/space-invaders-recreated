@@ -1,7 +1,8 @@
-package common.packets;
+package common.packets.ToServer;
 
 import common.GameContext;
 import common.PacketTypes;
+import common.packets.Packet;
 
 public class ShotPacket extends Packet {
 

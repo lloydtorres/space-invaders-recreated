@@ -1,11 +1,17 @@
 package server;
 
 import common.*;
-import common.packets.*;
+import common.packets.ToClient.IdPacket;
+import common.packets.ToClient.MessagePacket;
+import common.packets.ToClient.PlayerAddPacket;
+import common.packets.ToClient.PlayerRemovePacket;
+import common.packets.ToServer.MovePacket;
+import common.packets.ToServer.ShotPacket;
 
 // Many of these are left blank because server should never receive these packets from clients
 public class ServerGameContext implements GameContext {
     private Server server;
+    private GameState gameState;
     public ServerGameContext(Server server){
         this.server = server;
     }
@@ -26,15 +32,13 @@ public class ServerGameContext implements GameContext {
         return;
     }
 
-    // basically a placeholder implementation. currently acts like peer to peer communication
-    // should be changed when game session is implemented on the server
     @Override
     public void processMovePacket(MovePacket packet) {
-        server.updateServerPlayerPosition(packet.getSenderId(), packet.getX());
+        gameState.movePlayer(packet.getSenderId(), packet.getMoveDirection());
     }
 
     @Override
     public void processShotPacket(ShotPacket packet) {
-
+        gameState.shootFromPlayer(packet.getSenderId());
     }
 }

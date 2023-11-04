@@ -8,29 +8,23 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import common.*;
-import common.packets.MessagePacket;
-import common.packets.MovePacket;
+import common.packets.ToClient.MessagePacket;
+import common.packets.ToServer.MovePacket;
 import common.packets.Packet;
-import common.packets.PlayerAddPacket;
+import common.packets.ToClient.PlayerAddPacket;
 
 // main server class. waits for client connections, assigns them their unique ids
 // creates client handlers for each client
 // game loop should be handled here
 public class Server {
     private ServerSocket serverSocket;
-    private final Map<Integer, ServerPlayer> connectedPlayers;
+    private Map<Integer, ServerPlayer> connectedPlayers;
     private int IDCounter = 0;
-    private final int RIGHT_EDGE = 740;
-    private final int LEFT_EDGE = 12;
+    private GameLoop gameLoop;
 
-    public Server(int port) {
-        connectedPlayers = new ConcurrentHashMap<>();
-
-        try {
+    public Server(int port) throws IOException{
             serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            connectedPlayers = new ConcurrentHashMap<>();
     }
 
     public void addServerPlayer(int id, ServerPlayer serverPlayer) {
@@ -39,12 +33,8 @@ public class Server {
 
     public void removeServerPlayer(int id) {
         connectedPlayers.remove(id);
-    }
-
-    public void updateServerPlayerPosition(int id, int x) {
-        if (x >= LEFT_EDGE && x <= RIGHT_EDGE) {
-            connectedPlayers.get(id).setX(x);
-            broadcastPacket(new MovePacket(id, x));
+        if(connectedPlayers.size() == 0){
+            gameLoop.setGameRunning(false);
         }
     }
 
@@ -54,12 +44,17 @@ public class Server {
         PacketHandler packetHandler = new PacketHandler(context);
         Thread packetHandlerThread = new Thread(packetHandler);
         packetHandlerThread.start();
+        gameLoop = new GameLoop(30);
+        Thread gameLoopThread = new Thread(gameLoop);
+        gameLoopThread.start();
         while (true) {
             try {
                 Socket clientSocket = serverSocket.accept();
                 // Handle the client in a separate thread
                 Thread clientHandler = new Thread(new ClientHandler(clientSocket, IDCounter, packetHandler, this));
                 clientHandler.start();
+                gameLoop.getState().addPlayerEntity(IDCounter);
+                gameLoop.setGameRunning(true);
                 IDCounter++;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -89,13 +84,21 @@ public class Server {
         ClientHandler clientHandler = connectedPlayers.get(playerId).getClientHandler();
         for (ServerPlayer serverPlayer : connectedPlayers.values()) {
             clientHandler.enqueuePacket(new PlayerAddPacket(Configuration.SERVER_ID, serverPlayer.getPlayerName(), serverPlayer.getId()));
-            clientHandler.enqueuePacket(new MovePacket(serverPlayer.getId(), serverPlayer.getxCoord()));
         }
+    }
+    public void sendStateToPlayer(int playerId){
+        // send all of the entity data, score and lives left to a player that has connected to a running game
+        // after this, state update should be sent only by observing the state
+        // this requires more packet types
     }
 
     public static void main(String[] args) {
         int port = 12345;
-        Server server = new Server(port);
-        server.start();
+        try {
+            Server server = new Server(port);
+            server.start();
+        }catch (IOException e){
+            System.out.println("Error! Could not start the server.");
+        }
     }
 }

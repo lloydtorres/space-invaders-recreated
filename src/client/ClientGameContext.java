@@ -1,7 +1,12 @@
 package client;
 
 import common.*;
-import common.packets.*;
+import common.packets.ToClient.IdPacket;
+import common.packets.ToClient.MessagePacket;
+import common.packets.ToClient.PlayerAddPacket;
+import common.packets.ToClient.PlayerRemovePacket;
+import common.packets.ToServer.MovePacket;
+import common.packets.ToServer.ShotPacket;
 
 public class ClientGameContext implements GameContext {
     private GameFrame gameFrame;

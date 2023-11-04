@@ -1,6 +1,6 @@
 package client;
 
-import common.packets.MovePacket;
+import common.packets.ToServer.MovePacket;
 
 import javax.swing.*;
 import java.awt.*;

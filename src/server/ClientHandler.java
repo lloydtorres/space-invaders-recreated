@@ -2,6 +2,10 @@ package server;
 
 import common.*;
 import common.packets.*;
+import common.packets.ToClient.IdPacket;
+import common.packets.ToClient.MessagePacket;
+import common.packets.ToClient.PlayerAddPacket;
+import common.packets.ToClient.PlayerRemovePacket;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -91,11 +95,10 @@ public class ClientHandler implements Runnable {
             server.broadcastMessage("Player <" + playerName + "> joined the server!");
             server.appendLineToLog("New client connected: " + clientSocket.getInetAddress() + " as <" + serverPlayer.getPlayerName() + ">");
             server.broadcastPacket(new PlayerAddPacket(Configuration.SERVER_ID, playerName, playerId));
-            server.broadcastPacket(new MovePacket(playerId, serverPlayer.getxCoord()));
             // Put this player and its socket into the players map
             server.addServerPlayer(playerId, serverPlayer);
             enqueuePacket(new IdPacket(Configuration.SERVER_ID, playerId));
-            enqueuePacket(new MessagePacket(Configuration.SERVER_ID, "Hello from the server to you using packet framework"));
+            enqueuePacket(new MessagePacket(Configuration.SERVER_ID, "Server says HIII!"));
             server.sendAllPlayersToPlayer(playerId);
             // start workers for receiving and sending to client
             senderThread = new Thread(() -> {
