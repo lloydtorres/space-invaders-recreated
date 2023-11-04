@@ -203,7 +203,7 @@ public class GameState implements StateSubject{
                 canMove = (player.getX() - player.getXSpeed()) >= LEFT_MOVEMENT_BOUND;
                 break;
             case RIGHT:
-                canMove = (player.getX() + player.getWidth() + player.getXSpeed()) <= RIGHT_MOVEMENT_BOUND;
+                canMove = (player.getX() + player.getXSpeed()) <= RIGHT_MOVEMENT_BOUND;
                 break;
         }
         if(canMove){

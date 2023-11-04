@@ -1,10 +1,9 @@
 package client;
 
-import common.*;
+import common.Configuration;
+import common.GameContext;
 import common.packets.Packet;
 import common.packets.ToClient.*;
-import common.packets.ToServer.MovePacket;
-import common.packets.ToServer.ShootPacket;
 
 public class ClientGameContext implements GameContext {
     private GameFrame gameFrame;
@@ -19,7 +18,7 @@ public class ClientGameContext implements GameContext {
 
     @Override
     public void processPacket(Packet packet) {
-        switch (packet.getPacketType()){
+        switch (packet.getPacketType()) {
             case ID:
                 processIdPacket((IdPacket) packet);
                 break;
@@ -46,6 +45,7 @@ public class ClientGameContext implements GameContext {
                 break;
         }
     }
+
     private void processMessagePacket(MessagePacket packet) {
         gameFrame.appendToLog(packet.getMessage());
     }
@@ -56,8 +56,9 @@ public class ClientGameContext implements GameContext {
             gameFrame.appendToLog("This client's ID on server is " + packet.getNewId());
         }
     }
+
     private void processPlayerAddPacket(PlayerAddPacket packet) {
-        if(packet.getPlayerId() == thisPlayer.getId()){
+        if (packet.getPlayerId() == thisPlayer.getId()) {
             return;
         }
         ClientPlayer clientPlayer = new ClientPlayer(packet.getPlayerName());
@@ -74,21 +75,28 @@ public class ClientGameContext implements GameContext {
         gameFrame.getGame().removePlayerCannon(packet.getPlayerId());
     }
 
-    private void processScoreUpdatePacket(ScoreUpdatePacket packet){
+    private void processScoreUpdatePacket(ScoreUpdatePacket packet) {
         // code for shown score
         return;
     }
-    private void processLivesLeftUpdatePacket(LivesLeftUpdatePacket packet){
+
+    private void processLivesLeftUpdatePacket(LivesLeftUpdatePacket packet) {
         // code for updating shown lives left
         return;
     }
-    private void processEntityUpdatePacket(EntityUpdatePacket packet){
+
+    private void processEntityUpdatePacket(EntityUpdatePacket packet) {
+        if (packet.getEntityId() == thisPlayer.getId()) {
+            gameFrame.getGame().setThisPlayerPosition((int) packet.getNewX());
+        }
+
         // entity update code should be handled here
         // entity update packet includes entity id and its type to easily find the entity on the client
         // if entity was not found, then it should be added to the game
         return;
     }
-    private void processEntityRemovePacket(EntityRemovePacket packet){
+
+    private void processEntityRemovePacket(EntityRemovePacket packet) {
         // entity removal code
         return;
     }

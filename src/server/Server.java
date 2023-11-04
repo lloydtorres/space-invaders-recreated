@@ -7,10 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import client.Client;
 import common.*;
 import common.packets.ToClient.*;
-import common.packets.ToServer.MovePacket;
 import common.packets.Packet;
 import server.entities.ServerEntity;
 
@@ -40,12 +38,13 @@ public class Server {
 
     public void start() {
         appendLineToLog("Server is running on port " + serverSocket.getLocalPort() + ". Waiting for clients...");
-        ServerGameContext context = new ServerGameContext(this);
+        gameLoop = new GameLoop(30);
+        gameLoop.getState().addObserver(new StatePacketGenerator(this));
+
+        ServerGameContext context = new ServerGameContext(this, gameLoop.getState());
         PacketHandler packetHandler = new PacketHandler(context);
         Thread packetHandlerThread = new Thread(packetHandler);
         packetHandlerThread.start();
-        gameLoop = new GameLoop(30);
-        gameLoop.getState().addObserver(new StatePacketGenerator(this));
         Thread gameLoopThread = new Thread(gameLoop);
         gameLoopThread.start();
         while (true) {
