@@ -1,12 +1,13 @@
 package server;
 
 import common.*;
+import common.packets.Packet;
 import common.packets.ToClient.IdPacket;
 import common.packets.ToClient.MessagePacket;
 import common.packets.ToClient.PlayerAddPacket;
 import common.packets.ToClient.PlayerRemovePacket;
 import common.packets.ToServer.MovePacket;
-import common.packets.ToServer.ShotPacket;
+import common.packets.ToServer.ShootPacket;
 
 // Many of these are left blank because server should never receive these packets from clients
 public class ServerGameContext implements GameContext {
@@ -16,29 +17,23 @@ public class ServerGameContext implements GameContext {
         this.server = server;
     }
     @Override
-    public void processMessagePacket(MessagePacket packet) {
-        return;
+    public void processPacket(Packet packet) {
+        switch (packet.getPacketType()){
+            case MOVE:
+                processMovePacket((MovePacket) packet);
+                break;
+            case SHOOT:
+                processShotPacket((ShootPacket) packet);
+                break;
+        }
     }
-    @Override
-    public void processIdPacket(IdPacket packet) {
-        return;
-    }
-    @Override
-    public void processPlayerAddPacket(PlayerAddPacket packet) {
-        return;
-    }
-    @Override
-    public void processPlayerRemovePacket(PlayerRemovePacket packet) {
-        return;
-    }
-
-    @Override
-    public void processMovePacket(MovePacket packet) {
+    private void processMovePacket(MovePacket packet) {
         gameState.movePlayer(packet.getSenderId(), packet.getMoveDirection());
     }
 
-    @Override
-    public void processShotPacket(ShotPacket packet) {
+    private void processShotPacket(ShootPacket packet) {
         gameState.shootFromPlayer(packet.getSenderId());
     }
+
+
 }

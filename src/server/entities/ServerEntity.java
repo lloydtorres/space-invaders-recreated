@@ -1,5 +1,6 @@
 package server.entities;
 
+import common.EntityType;
 import common.MoveDirection;
 
 public abstract class ServerEntity {
@@ -8,7 +9,9 @@ public abstract class ServerEntity {
     private float X, Y;
     private final float XSpeed, YSpeed;
     private float width, height;
-    public ServerEntity(float X, float Y, float width, float height, float XSpeed, float YSpeed){
+    private EntityType entityType;
+    public ServerEntity(EntityType entityType, float X, float Y, float width, float height, float XSpeed, float YSpeed){
+        this.entityType = entityType;
         this.id = idCounter++;
         this.X = X;
         this.Y = Y;
@@ -34,6 +37,10 @@ public abstract class ServerEntity {
         }
     }
 
+    public EntityType getEntityType() {
+        return entityType;
+    }
+
     public int getId() {
         return id;
     }
@@ -52,6 +59,14 @@ public abstract class ServerEntity {
 
     public float getY() {
         return Y;
+    }
+
+    public float getXSpeed() {
+        return XSpeed;
+    }
+
+    public float getYSpeed() {
+        return YSpeed;
     }
 
     public void setHeight(float height) {

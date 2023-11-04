@@ -7,11 +7,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import client.Client;
 import common.*;
-import common.packets.ToClient.MessagePacket;
+import common.packets.ToClient.*;
 import common.packets.ToServer.MovePacket;
 import common.packets.Packet;
-import common.packets.ToClient.PlayerAddPacket;
+import server.entities.ServerEntity;
 
 // main server class. waits for client connections, assigns them their unique ids
 // creates client handlers for each client
@@ -44,6 +45,7 @@ public class Server {
         Thread packetHandlerThread = new Thread(packetHandler);
         packetHandlerThread.start();
         gameLoop = new GameLoop(30);
+        gameLoop.getState().addObserver(new StatePacketGenerator(this));
         Thread gameLoopThread = new Thread(gameLoop);
         gameLoopThread.start();
         while (true) {
@@ -85,9 +87,19 @@ public class Server {
         }
     }
     public void sendStateToPlayer(int playerId){
-        // send all of the entity data, score and lives left to a player that has connected to a running game
+        // send all of the entity data, score and lives left to a player. This should only be called when a new player joins
         // after this, state update should be sent only by observing the state
-        // this requires more packet types
+        int score = gameLoop.getState().getScore();
+        int livesLeft = gameLoop.getState().getLivesLeft();
+        Map<Integer, ServerEntity> entities = gameLoop.getState().getAllEntities();
+        ClientHandler clientHandler = connectedPlayers.get(playerId).getClientHandler();
+        clientHandler.enqueuePacket(new ScoreUpdatePacket(Configuration.SERVER_ID, score));
+        clientHandler.enqueuePacket(new LivesLeftUpdatePacket(Configuration.SERVER_ID, livesLeft));
+        for (ServerEntity entity : entities.values()){
+            clientHandler.enqueuePacket(new EntityUpdatePacket(Configuration.SERVER_ID,
+                    entity.getEntityType(), entity.getId(), entity.getX(), entity.getY()));
+        }
+
     }
 
     public static void main(String[] args) {

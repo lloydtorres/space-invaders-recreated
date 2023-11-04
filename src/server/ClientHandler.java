@@ -100,6 +100,7 @@ public class ClientHandler implements Runnable {
             enqueuePacket(new IdPacket(Configuration.SERVER_ID, playerId));
             enqueuePacket(new MessagePacket(Configuration.SERVER_ID, "Server says HIII!"));
             server.sendAllPlayersToPlayer(playerId);
+            server.sendStateToPlayer(playerId);
             // start workers for receiving and sending to client
             senderThread = new Thread(() -> {
                 while (!Thread.currentThread().isInterrupted()) {

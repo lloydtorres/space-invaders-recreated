@@ -1,5 +1,6 @@
 package client;
 
+import common.MoveDirection;
 import common.packets.ToServer.MovePacket;
 
 import javax.swing.*;
@@ -41,11 +42,11 @@ public class PlayerCannon {
 
     // these two functions move user left or right by 5 units
     public void right(){
-        client.sendPacket(new MovePacket(client.getThisPlayer().getId(), pos + 5));
+        client.sendPacket(new MovePacket(client.getThisPlayer().getId(), MoveDirection.RIGHT));
     }
 
     public void left(){
-        client.sendPacket(new MovePacket(client.getThisPlayer().getId(), pos - 5));
+        client.sendPacket(new MovePacket(client.getThisPlayer().getId(), MoveDirection.LEFT));
     }
 
     private void updateRect(){

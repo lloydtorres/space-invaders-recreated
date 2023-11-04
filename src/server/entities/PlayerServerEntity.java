@@ -1,8 +1,10 @@
 package server.entities;
 
+import common.EntityType;
+
 public class PlayerServerEntity extends ServerEntity {
     public PlayerServerEntity(float X, float Y){
-        super(X, Y, 38, 25, 5, 0);
+        super(EntityType.PLAYER, X, Y, 38, 25, 5, 0);
 
     }
 }
