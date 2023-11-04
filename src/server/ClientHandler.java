@@ -2,6 +2,10 @@ package server;
 
 import common.*;
 import common.packets.*;
+import common.packets.ToClient.IdPacket;
+import common.packets.ToClient.MessagePacket;
+import common.packets.ToClient.PlayerAddPacket;
+import common.packets.ToClient.PlayerRemovePacket;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -94,8 +98,9 @@ public class ClientHandler implements Runnable {
             // Put this player and its socket into the players map
             server.addServerPlayer(playerId, serverPlayer);
             enqueuePacket(new IdPacket(Configuration.SERVER_ID, playerId));
-            enqueuePacket(new MessagePacket(Configuration.SERVER_ID, "Hello from the server to you using packet framework"));
+            enqueuePacket(new MessagePacket(Configuration.SERVER_ID, "Server says HIII!"));
             server.sendAllPlayersToPlayer(playerId);
+            server.sendStateToPlayer(playerId);
             // start workers for receiving and sending to client
             senderThread = new Thread(() -> {
                 while (!Thread.currentThread().isInterrupted()) {

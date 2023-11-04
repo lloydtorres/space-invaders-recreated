@@ -6,15 +6,15 @@ import java.io.Serializable;
 
 public abstract class Packet implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int packetType;
+    private PacketType packetType;
     private int senderId;
 
-    public Packet(int packetType, int senderId) {
+    public Packet(PacketType packetType, int senderId) {
         this.packetType = packetType;
         this.senderId = senderId;
     }
 
-    public int getPacketType() {
+    public PacketType getPacketType() {
         return packetType;
     }
 
@@ -22,5 +22,7 @@ public abstract class Packet implements Serializable {
         return senderId;
     }
 
-    public abstract void handle(GameContext context);
+    public void handle(GameContext context){
+        context.processPacket(this);
+    }
 }

@@ -51,10 +51,13 @@ public class Client {
 
         gameFrame.getGame().setThisPlayerName(playerName);
         thisPlayer = new ClientPlayer(playerName);
+
+        // sending/receiving packets
         ClientGameContext context = new ClientGameContext(gameFrame, thisPlayer, this);
         PacketHandler packetHandler = new PacketHandler(context);
         Thread packetHandlerThread = new Thread(packetHandler);
         packetHandlerThread.start();
+
         serverHandler = new ServerHandler(serverSocket, packetHandler);
         serverHandler.sendPlayerName(playerName);
         Thread serverHandlerThread = new Thread(serverHandler);

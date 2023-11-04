@@ -45,11 +45,11 @@ import java.time.format.DateTimeFormatter;
 
 // This is the main game window with Log on the side. It handles game views and assembles the main game JPanel.
 // Previously this was the main class.
-public class GameFrame extends JFrame implements ActionListener{
+public class GameFrame extends JFrame implements ActionListener {
 
     private javax.swing.Timer myTimer;
     private boolean gameStart = false;
-    private Game game; // component classes of the game
+    private GameKeyListener gameKeyListener; // component classes of the game
     private PlayerCannon player;
     private AlienMan enemies;
     private Scorekeeper scoreMan;
@@ -61,22 +61,21 @@ public class GameFrame extends JFrame implements ActionListener{
     private Style logTextStyle;
     private StyledDocument logDocument;
     private Client client;
-    public GameFrame(String title, Client client){
+
+    public GameFrame(String title, Client client) {
         super(title);
         this.client = client;
     }
-    public void start(){
-        try{
+
+    public void start() {
+        try {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             setSize(1000, 800);
 
             gamePanel = new JPanel();
             gamePanel.setBackground(Color.BLACK);
-//            menu = new MainMenu();
             scoreMan = new Scorekeeper();
-//            currentGameView = menu;
 
-//            changeGameView(menu);
             JTextPane logText = new JTextPane();
             logText.setEditable(false);
             logText.setBackground(new Color(50, 50, 50));
@@ -92,23 +91,22 @@ public class GameFrame extends JFrame implements ActionListener{
             add(commandScrollPane, BorderLayout.WEST);
             appendToLog("Initialized");
             startOverGame();
-            myTimer = new javax.swing.Timer(10,this); // update every 10 ms
+            myTimer = new javax.swing.Timer(10, this); // update every 10 ms
             myTimer.start();
             setResizable(false);
             gameStart = true;
-            startOverGame();
-        }catch (IOException e){
-            e.printStackTrace();
-        }catch (FontFormatException e){
+        } catch (IOException | FontFormatException e) {
             e.printStackTrace();
         }
     }
-    public Game getGame(){
-        return game;
+
+    public GameKeyListener getGame() {
+        return gameKeyListener;
     }
-    public void appendToLog(String logEntry){
+
+    public void appendToLog(String logEntry) {
         try {
-            if(logDocument != null){
+            if (logDocument != null) {
                 logDocument.insertString(logDocument.getLength(), "[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] " + logEntry + "\n", logTextStyle);
                 System.out.println("[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] " + logEntry);
             }
@@ -116,23 +114,25 @@ public class GameFrame extends JFrame implements ActionListener{
             e.printStackTrace();
         }
     }
-    private void changeGameView(JPanel gameView){
-        if(currentGameView != null){
+
+    private void changeGameView(JPanel gameView) {
+        if (currentGameView != null) {
             gamePanel.remove(currentGameView);
         }
         gamePanel.add(gameView, BorderLayout.LINE_START);
         revalidate();
         currentGameView = gameView;
     }
+
     private void nextLevel() throws IOException, FontFormatException { // called every time user wins (all aliens destroyed), resets game setup
-        if (wave < 10){
+        if (wave < 10) {
             wave += 1;
         }
         player.addLife();
-        enemies = new AlienMan(wave,scoreMan,player,shield);
-        shotsFired = new BulletMan(player,enemies,shield);
-        game = new Game(player,enemies,scoreMan,shield,shotsFired, client);
-        changeGameView(game);
+        enemies = new AlienMan(wave, scoreMan, player, shield);
+        shotsFired = new BulletMan(player, enemies, shield);
+        gameKeyListener = new GameKeyListener(player, enemies, scoreMan, shield, shotsFired, client);
+        changeGameView(gameKeyListener);
     }
 
     private void startOverGame() throws IOException, FontFormatException {
@@ -143,18 +143,19 @@ public class GameFrame extends JFrame implements ActionListener{
         shield = new Shield();
         scoreMan.setShip(player);
         scoreMan.resetScore();
-        enemies = new AlienMan(wave,scoreMan,player,shield);
-        shotsFired = new BulletMan(player,enemies,shield);
-        game = new Game(player,enemies,scoreMan,shield,shotsFired, client);
-        changeGameView(game);
+        enemies = new AlienMan(wave, scoreMan, player, shield);
+        shotsFired = new BulletMan(player, enemies, shield);
+        gameKeyListener = new GameKeyListener(player, enemies, scoreMan, shield, shotsFired, client);
+        changeGameView(gameKeyListener);
     }
-    
-    public void actionPerformed(ActionEvent evt){ // event listener stuff, update classes every 10 ms
+
+    //    called every 10 ms
+    public void actionPerformed(ActionEvent evt) {
         Object source = evt.getSource();
-        if(source == myTimer){
+        if (source == myTimer) {
             if (gameStart) {
-                if (game.stillPlaying() && !game.isPaused() && !player.gotHit()) { // only move when not paused and player still alive
-                    game.move(); // move player
+                if (gameKeyListener.stillPlaying() && !gameKeyListener.isPaused() && !player.gotHit()) { // only move when not paused and player still alive
+                    gameKeyListener.move(); // move player
                     if (enemies.metronome()) { // if aliens have moved
                         shotsFired.setAlienShots(enemies.attack()); // launch attack
                     }
@@ -162,42 +163,26 @@ public class GameFrame extends JFrame implements ActionListener{
                     shotsFired.trackBullets(); // move shots if they exist
                 }
 
-                if (!game.stillPlaying()) {
+                if (!gameKeyListener.stillPlaying()) {
                     enemies.ufoDestroy();
                 }
 
-                game.repaint();
+                gameKeyListener.repaint();
 
                 if (enemies.aliensGone()) { // if no aliens left
                     // error handling in case font doesn't exist
                     try {
                         nextLevel();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (FontFormatException e) {
+                    } catch (IOException | FontFormatException e) {
                         e.printStackTrace();
                     }
                 }
 
-                if (game.doRestartGame()) { // check if player wants to restart game
+                if (gameKeyListener.doRestartGame()) { // check if player wants to restart game
                     // error handling in case font doesn't exist
                     try {
                         startOverGame();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (FontFormatException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            else {
-                if (gameStart){ // initialize if player starts game
-                    // error handling in case font doesn't exist
-                    try {
-                        startOverGame();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (FontFormatException e) {
+                    } catch (IOException | FontFormatException e) {
                         e.printStackTrace();
                     }
                 }
