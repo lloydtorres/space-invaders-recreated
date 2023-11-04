@@ -30,6 +30,7 @@ public class ClientHandler implements Runnable {
     private Server server;
     private Thread senderThread, receiverThread;
     private ServerPlayer serverPlayer;
+
     public ClientHandler(Socket socket, int playerId, PacketHandler packetHandler, Server server) {
         clientSocket = socket;
         this.playerId = playerId;
@@ -42,6 +43,7 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
+
     private void sendPacket(Packet packet) {
         try {
             clientOut.writeObject(packet);
@@ -50,11 +52,13 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
+
     private Packet receivePacket() throws IOException, ClassNotFoundException {
         Packet packet;
         packet = (Packet) clientIn.readObject();
         return packet;
     }
+
     public void enqueuePacket(Packet packet) {
         outgoingPacketQueue.offer(packet);
     }
@@ -86,6 +90,7 @@ public class ClientHandler implements Runnable {
         server.appendLineToLog("Client disconnected: " + clientSocket.getInetAddress() + " as <" + serverPlayer.getPlayerName() + ">");
         server.broadcastPacket(new PlayerRemovePacket(Configuration.SERVER_ID, playerId));
     }
+
     @Override
     public void run() {
         try {
@@ -117,10 +122,9 @@ public class ClientHandler implements Runnable {
                         Packet incomingPacket = receivePacket();
                         packetHandler.dispatchPacket(incomingPacket);
                     }
-                }catch (SocketException e){
+                } catch (SocketException e) {
                     disconnectClient();
-                }
-                catch (IOException | ClassNotFoundException e) {
+                } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             });
@@ -134,7 +138,7 @@ public class ClientHandler implements Runnable {
                 e.printStackTrace();
             }
 
-        }catch (SocketException e) {
+        } catch (SocketException e) {
             disconnectClient();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
