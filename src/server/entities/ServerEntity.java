@@ -3,12 +3,13 @@ package server.entities;
 import common.MoveDirection;
 
 public abstract class ServerEntity {
-    private int id;
+    private static int idCounter = 0;
+    private final int id;
     private float X, Y;
-    private float XSpeed, YSpeed;
+    private final float XSpeed, YSpeed;
     private float width, height;
-    public ServerEntity(int id, float X, float Y, float width, float height, float XSpeed, float YSpeed){
-        this.id = id;
+    public ServerEntity(float X, float Y, float width, float height, float XSpeed, float YSpeed){
+        this.id = idCounter++;
         this.X = X;
         this.Y = Y;
         this.width = width;
@@ -31,10 +32,6 @@ public abstract class ServerEntity {
                 Y += YSpeed;
                 break;
         }
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getId() {

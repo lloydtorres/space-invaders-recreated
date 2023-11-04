@@ -19,7 +19,6 @@ import common.packets.ToClient.PlayerAddPacket;
 public class Server {
     private ServerSocket serverSocket;
     private Map<Integer, ServerPlayer> connectedPlayers;
-    private int IDCounter = 0;
     private GameLoop gameLoop;
 
     public Server(int port) throws IOException{
@@ -51,11 +50,10 @@ public class Server {
             try {
                 Socket clientSocket = serverSocket.accept();
                 // Handle the client in a separate thread
-                Thread clientHandler = new Thread(new ClientHandler(clientSocket, IDCounter, packetHandler, this));
+                int playerId = gameLoop.getState().addPlayerEntity();
+                Thread clientHandler = new Thread(new ClientHandler(clientSocket, playerId, packetHandler, this));
                 clientHandler.start();
-                gameLoop.getState().addPlayerEntity(IDCounter);
                 gameLoop.setGameRunning(true);
-                IDCounter++;
             } catch (IOException e) {
                 e.printStackTrace();
             }

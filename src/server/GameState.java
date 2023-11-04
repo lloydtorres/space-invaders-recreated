@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameState {
     // IdCounter for simple entity id generation (except for players)
     // highly unlikely to reach Integer.MAX_VALUE in a single game session
-    private int IdCounter = 0;
     private Map<Integer, PlayerServerEntity> playerEntities;
     private Map<Integer, EnemyServerEntity> enemyEntities;
     private Map<Integer, BulletServerEntity> bulletEntities;
@@ -114,35 +113,37 @@ public class GameState {
         }
 
     }
-    public void addPlayerEntity(int id){
-        PlayerServerEntity playerEntity = new PlayerServerEntity(id, BOUNDS_CENTER, PLAYERS_LINE_HEIGHT);
+    public int addPlayerEntity(){
+        PlayerServerEntity playerEntity = new PlayerServerEntity(BOUNDS_CENTER, PLAYERS_LINE_HEIGHT);
+        int id = playerEntity.getId();
         playerEntities.put(id, playerEntity);
+        return id;
     }
 
     public void removePlayerEntity(int id){
         playerEntities.remove(id);
     }
     private void addEnemyEntity(float x, float y, int pointWorth){
-        EnemyServerEntity enemyEntity = new EnemyServerEntity(IdCounter, x, y, pointWorth);
-        enemyEntities.put(IdCounter, enemyEntity);
-        IdCounter++;
+        EnemyServerEntity enemyEntity = new EnemyServerEntity(x, y, pointWorth);
+        int id = enemyEntity.getId();
+        enemyEntities.put(id, enemyEntity);
     }
     private void removeEnemyEntity(int id){
         enemyEntities.remove(id);
     }
     private void addBulletEntity(float x, float y, BulletSender bulletSender){
-        BulletServerEntity bulletEntity = new BulletServerEntity(IdCounter, x, y, bulletSender);
-        bulletEntities.put(IdCounter, bulletEntity);
-        IdCounter++;
+        BulletServerEntity bulletEntity = new BulletServerEntity(x, y, bulletSender);
+        int id = bulletEntity.getId();
+        bulletEntities.put(id, bulletEntity);
     }
     public void removeBulletEntity(int id){
         bulletEntities.remove(id);
     }
 
     private void addShieldFragmentEntity(float x, float y){
-        ShieldFragmentServerEntity shieldFragmentEntity = new ShieldFragmentServerEntity(IdCounter, x, y);
-        shieldFragmentEntities.put(IdCounter, shieldFragmentEntity);
-        IdCounter++;
+        ShieldFragmentServerEntity shieldFragmentEntity = new ShieldFragmentServerEntity(x, y);
+        int id = shieldFragmentEntity.getId();
+        shieldFragmentEntities.put(id, shieldFragmentEntity);
     }
     private void removeShieldFragmentEntity(int id){
         shieldFragmentEntities.remove(id);
@@ -167,10 +168,4 @@ public class GameState {
         float bulletY = entity.getY() - 8;
         addBulletEntity(bulletX, bulletY, BulletSender.PLAYER);
     }
-
-
-
-
-
-
 }

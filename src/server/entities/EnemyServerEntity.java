@@ -2,8 +2,8 @@ package server.entities;
 
 public class EnemyServerEntity extends ServerEntity {
     private int pointWorth;
-    public EnemyServerEntity(int id, float X, float Y, int pointWorth){
-        super(id, X, Y, 37, 24, 18, 24);
+    public EnemyServerEntity(float X, float Y, int pointWorth){
+        super(X, Y, 37, 24, 18, 24);
         this.pointWorth = pointWorth;
     }
 
