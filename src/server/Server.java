@@ -31,6 +31,7 @@ public class Server {
 
     public void removeServerPlayer(int id) {
         connectedPlayers.remove(id);
+        gameLoop.getState().removeEntity(id, EntityType.PLAYER);
         if(connectedPlayers.size() == 0){
             gameLoop.setGameRunning(false);
         }

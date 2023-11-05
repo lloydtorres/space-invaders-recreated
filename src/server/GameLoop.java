@@ -6,16 +6,20 @@ public class GameLoop implements Runnable{
     private long lastFrameTime;
     private GameState state;
     private double timeStep;
-    private boolean gameRunning;
+    private volatile boolean gameRunning;
     public GameLoop(int refreshRate){
         lastFrameTime = System.currentTimeMillis();
         timeStep = 1000.0 / refreshRate;
         state = new GameState();
+        gameRunning = false;
     }
 
     private void loop(){
         state.initializeGame();
-        while(gameRunning){
+        while(true){
+            if(!gameRunning){
+                continue;
+            }
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - lastFrameTime;
             if (deltaTime < timeStep) {

@@ -75,8 +75,6 @@ public class GameFrame extends JFrame {
         appendToLog("Initialized");
         setResizable(false);
         revalidate();
-        System.out.println("in the game fram");
-
     }
 
     public Game getGame() {

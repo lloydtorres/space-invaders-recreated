@@ -138,7 +138,7 @@ public class GameState implements StateSubject{
         }
 
     }
-    private void removeEntity(int id, EntityType entityType){
+    public void removeEntity(int id, EntityType entityType){
         ServerEntity entity = null;
         switch(entityType){
             case ENEMY:

@@ -51,19 +51,14 @@ public class Game extends JPanel implements KeyListener, Runnable {
     }
     @Override
     protected void paintComponent(Graphics g) {
-        System.out.println("paiiiiiiiint");
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         drawBackground(g2d);
         drawEntities(g2d);
         drawLivesLeft(g2d);
         drawScore(g2d);
-        System.out.println("paiiiiiiiint");
     }
-    @Override
-    public void update(Graphics g){
-        System.out.println("paiiiiiiiint");
-    }
+
     public void loop(){
         while(isRunning){
             long currentTime = System.currentTimeMillis();

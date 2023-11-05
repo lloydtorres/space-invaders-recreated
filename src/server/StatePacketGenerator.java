@@ -1,5 +1,4 @@
 package server;
-
 import common.Configuration;
 import common.packets.Packet;
 import common.packets.ToClient.EntityRemovePacket;
