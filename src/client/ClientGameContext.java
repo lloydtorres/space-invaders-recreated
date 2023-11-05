@@ -9,11 +9,13 @@ public class ClientGameContext implements GameContext {
     private GameFrame gameFrame;
     private ClientPlayer thisPlayer;
     private Client client;
+    private Game game;
 
     public ClientGameContext(GameFrame gameFrame, ClientPlayer clientPlayer, Client client) {
         this.gameFrame = gameFrame;
         thisPlayer = clientPlayer;
         this.client = client;
+        game = gameFrame.getGame();
     }
 
     @Override
@@ -64,7 +66,6 @@ public class ClientGameContext implements GameContext {
         ClientPlayer clientPlayer = new ClientPlayer(packet.getPlayerName());
         clientPlayer.setId(packet.getPlayerId());
         client.addPlayer(packet.getPlayerId(), clientPlayer);
-        gameFrame.getGame().addPlayerCannon(packet.getPlayerId(), packet.getPlayerName());
     }
 
     private void processPlayerRemovePacket(PlayerRemovePacket packet) {
@@ -72,33 +73,22 @@ public class ClientGameContext implements GameContext {
             return;
         }
         client.removePlayer(packet.getPlayerId());
-        gameFrame.getGame().removePlayerCannon(packet.getPlayerId());
     }
 
     private void processScoreUpdatePacket(ScoreUpdatePacket packet) {
-        // code for shown score
-        return;
+        game.updateScore(packet.getNewScore());
     }
 
     private void processLivesLeftUpdatePacket(LivesLeftUpdatePacket packet) {
-        // code for updating shown lives left
-        return;
+        game.updateLivesLeft(packet.getNewLivesLeft());
     }
 
     private void processEntityUpdatePacket(EntityUpdatePacket packet) {
-        if (packet.getEntityId() == thisPlayer.getId()) {
-            gameFrame.getGame().setThisPlayerPosition((int) packet.getNewX());
-        }
-
-        // entity update code should be handled here
-        // entity update packet includes entity id and its type to easily find the entity on the client
-        // if entity was not found, then it should be added to the game
-        return;
+        game.updateEntity(packet.getEntityId(), packet.getEntityType(), (int)packet.getNewX(), (int)packet.getNewY());
     }
 
     private void processEntityRemovePacket(EntityRemovePacket packet) {
-        // entity removal code
-        return;
+        game.removeEntity(packet.getEntityId());
     }
 
 }

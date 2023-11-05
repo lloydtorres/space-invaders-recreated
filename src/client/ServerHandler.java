@@ -67,6 +67,7 @@ public class ServerHandler implements Runnable {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
                     Packet incomingPacket = receivePacket();
+                    System.out.println(incomingPacket);
                     packetHandler.dispatchPacket(incomingPacket);
                 }
             } catch (IOException | ClassNotFoundException e) {
