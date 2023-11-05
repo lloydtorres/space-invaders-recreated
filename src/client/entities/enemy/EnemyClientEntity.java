@@ -9,17 +9,18 @@ import java.awt.*;
 
 public class EnemyClientEntity extends ClientEntity {
     private Enemy enemy;
+    private final int height = 24;
 
     public EnemyClientEntity(int id, Drawer drawer, int x, int y, EnemyFactory factory) {
         super(id, drawer, x, y);
 
         var enemy = factory.createEnemy();
 
-        rectangle = new Rectangle(x, y, enemy.getSize(), 24);
+        rectangle = new Rectangle(x, y, enemy.getSize(), height);
     }
 
     public void updateRect(){
-        rectangle = new Rectangle(x, y, enemy.getSize(),24);
+        rectangle = new Rectangle(x, y, enemy.getSize(),height);
     }
 
     public void left(){ // move alien to left
@@ -38,7 +39,7 @@ public class EnemyClientEntity extends ClientEntity {
     }
 
     public void down(){ // moves down alien
-        y += 24;
+        y += height;
         updateRect();
     }
 
