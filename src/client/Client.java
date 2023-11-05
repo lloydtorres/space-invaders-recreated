@@ -1,4 +1,5 @@
 package client;
+import common.EntityType;
 import common.packets.Packet;
 import common.PacketHandler;
 

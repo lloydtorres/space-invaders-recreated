@@ -57,6 +57,8 @@ public class GameState implements StateSubject{
         livesLeft = 3;
     }
     private void generateEnemies(){
+        addEnemyEntity(200, 100, 360);
+        addEnemyEntity(400, 100, 360);
         return;
     }
     private void generateShields(){
