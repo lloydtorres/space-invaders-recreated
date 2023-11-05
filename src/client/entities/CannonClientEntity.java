@@ -16,8 +16,8 @@ public class CannonClientEntity extends ClientEntity {
     private boolean gotShot = false; // flag to determine if user has been hit
     private int counter = 0; // used to moderate when to display image
 
-    public CannonClientEntity(int id, Drawer drawer, int x, int y){
-        super(id, drawer, x, y);
+    public CannonClientEntity(int id, int x, int y){
+        super(id, x, y);
     }
 
 }

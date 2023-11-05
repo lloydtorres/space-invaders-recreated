@@ -11,8 +11,8 @@ public class EnemyClientEntity extends ClientEntity {
     private final Enemy enemy;
     private final int height = 24;
 
-    public EnemyClientEntity(int id, Drawer drawer, int x, int y, EnemyFactory factory) {
-        super(id, drawer, x, y);
+    public EnemyClientEntity(int id, int x, int y, EnemyFactory factory) {
+        super(id, x, y);
 
         enemy = factory.createEnemy();
 
