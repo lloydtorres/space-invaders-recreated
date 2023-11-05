@@ -10,6 +10,7 @@ import java.awt.*;
 public class EnemyClientEntity extends ClientEntity {
     private final Enemy enemy;
     private final int height = 24;
+    private Image currentPose;
 
     public EnemyClientEntity(int id, int x, int y, EnemyFactory factory) {
         super(id, x, y);
@@ -55,8 +56,13 @@ public class EnemyClientEntity extends ClientEntity {
         return y;
     }
 
-    public Image getImage(int beat){ // method determines which image to display depending on beat value
-        if (beat==0) return enemy.getFirstPose();
-        else return enemy.getSecondPose();
+    public void setCurrentPose(int number)
+    {
+        if (number==0) currentPose = enemy.getFirstPose();
+        else currentPose = enemy.getSecondPose();
+    }
+
+    public void draw(Graphics graphics) {
+        graphics.drawImage(currentPose, x, y, null);
     }
 }

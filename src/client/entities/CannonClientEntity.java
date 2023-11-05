@@ -20,5 +20,24 @@ public class CannonClientEntity extends ClientEntity {
         super(id, x, y);
     }
 
+    public void draw(Graphics g){
+        g.drawString(name, pos - 12, 580);
+        if (!gotShot){ // normal ship
+            g.drawImage(imgShip,pos-12,570,null);
+        }
+        // draws broken ship when hit
+        else {
+            counter++;
+            if (counter%5 == 0){
+                curImage = 1 - curImage; // flips between 1 and 0
+            }
+            if (curImage == 0){
+                g.drawImage(shipDown0,pos-12,570,null);
+            }
+            else{
+                g.drawImage(shipDown1,pos-12,570,null);
+            }
+        }
+    }
 }
 

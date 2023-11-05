@@ -12,6 +12,7 @@ public class DrawableClientEntity extends ClientEntity{
         this.drawer = drawer;
     }
 
+    @Override
     public void draw(Graphics graphics){
         drawer.draw(graphics,x, y);
     }

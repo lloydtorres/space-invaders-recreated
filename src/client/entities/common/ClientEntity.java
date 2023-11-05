@@ -16,4 +16,6 @@ public class ClientEntity {
     }
 
     public Rectangle getRect() {return this.rectangle;}
+
+    public void draw(Graphics graphics) {}
 }
