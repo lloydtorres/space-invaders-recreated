@@ -8,13 +8,13 @@ import client.utilities.Drawer;
 import java.awt.*;
 
 public class EnemyClientEntity extends ClientEntity {
-    private Enemy enemy;
+    private final Enemy enemy;
     private final int height = 24;
 
     public EnemyClientEntity(int id, Drawer drawer, int x, int y, EnemyFactory factory) {
         super(id, drawer, x, y);
 
-        var enemy = factory.createEnemy();
+        enemy = factory.createEnemy();
 
         rectangle = new Rectangle(x, y, enemy.getSize(), height);
     }
