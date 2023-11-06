@@ -1,7 +1,5 @@
 package client;
 
-import server.ClientHandler;
-
 public class ClientPlayer {
     private int id;
     private String name;

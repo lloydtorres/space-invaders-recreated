@@ -16,9 +16,8 @@ import server.entities.ServerEntity;
 // creates client handlers for each client
 // game loop should be handled here
 public class Server {
-    private ServerSocket serverSocket;
-    private Map<Integer, ServerPlayer> connectedPlayers;
-    private GameLoop gameLoop;
+    private final ServerSocket serverSocket;
+    private final Map<Integer, ServerPlayer> connectedPlayers;
 
     public Server(int port) throws IOException{
             serverSocket = new ServerSocket(port);
@@ -31,6 +30,7 @@ public class Server {
 
     public void removeServerPlayer(int id) {
         connectedPlayers.remove(id);
+        GameLoop gameLoop = GameLoop.getInstance();
         gameLoop.getState().removeEntity(id, EntityType.PLAYER);
         if(connectedPlayers.size() == 0){
             gameLoop.setGameRunning(false);
@@ -39,7 +39,7 @@ public class Server {
 
     public void start() {
         appendLineToLog("Server is running on port " + serverSocket.getLocalPort() + ". Waiting for clients...");
-        gameLoop = new GameLoop(30);
+        GameLoop gameLoop = GameLoop.getInstance();
         gameLoop.getState().addObserver(new StatePacketGenerator(this));
 
         ServerGameContext context = new ServerGameContext(this, gameLoop.getState());
@@ -89,6 +89,8 @@ public class Server {
     public void sendStateToPlayer(int playerId){
         // send all of the entity data, score and lives left to a player. This should only be called when a new player joins
         // after this, state update should be sent only by observing the state
+        GameLoop gameLoop = GameLoop.getInstance();
+        System.out.println("Singleton's hashcode: " + gameLoop.hashCode());
         int score = gameLoop.getState().getScore();
         int livesLeft = gameLoop.getState().getLivesLeft();
         Map<Integer, ServerEntity> entities = gameLoop.getState().getAllEntities();

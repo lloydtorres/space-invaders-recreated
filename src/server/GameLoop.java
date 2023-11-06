@@ -1,17 +1,25 @@
 package server;
 
-import common.MoveDirection;
+import common.Configuration;
 
 public class GameLoop implements Runnable{
+    private static GameLoop instance = null;
     private long lastFrameTime;
-    private GameState state;
-    private double timeStep;
+    private final GameState state;
+    private final double timeStep;
     private volatile boolean gameRunning;
-    public GameLoop(int refreshRate){
+    private GameLoop(){
         lastFrameTime = System.currentTimeMillis();
-        timeStep = 1000.0 / refreshRate;
+        timeStep = 1000.0 / Configuration.REFRESH_RATE;
         state = new GameState();
         gameRunning = false;
+    }
+
+    public static synchronized GameLoop getInstance() {
+        if(instance == null){
+            instance = new GameLoop();
+        }
+        return instance;
     }
 
     private void loop(){
