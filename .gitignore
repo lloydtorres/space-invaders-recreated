@@ -1,5 +1,8 @@
 *.class
 
+# VScode folder
+.vscode/
+
 # IntelliJ stuff
 .idea/
 *.iml
