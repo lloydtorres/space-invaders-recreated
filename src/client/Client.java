@@ -1,8 +1,7 @@
 package client;
-import common.packets.IPacketFactory;
+import common.EntityType;
 import common.packets.Packet;
 import common.PacketHandler;
-import common.packets.PacketFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,8 +19,7 @@ public class Client {
     private Game game;
     public Client(){
         try{
-            IPacketFactory packetFactory = new PacketFactory();
-            game = new Game(this, packetFactory, 30);
+            game = new Game(this, 30);
             connectionFrame = new ConnectionFrame("Space Invaders MP", this);
             gameFrame = new GameFrame("Space Invaders MP", this, game);
             otherPlayerList = new ConcurrentHashMap<>();

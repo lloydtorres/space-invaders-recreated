@@ -8,8 +8,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import common.*;
-import common.packets.IPacketFactory;
-import common.packets.PacketFactory;
 import common.packets.ToClient.*;
 import common.packets.Packet;
 import server.entities.ServerEntity;
@@ -42,8 +40,7 @@ public class Server {
     public void start() {
         appendLineToLog("Server is running on port " + serverSocket.getLocalPort() + ". Waiting for clients...");
         GameLoop gameLoop = GameLoop.getInstance();
-        IPacketFactory packetFactory = new PacketFactory();
-        gameLoop.getState().addObserver(new StatePacketGenerator(this, packetFactory));
+        gameLoop.getState().addObserver(new StatePacketGenerator(this));
 
         ServerGameContext context = new ServerGameContext(this, gameLoop.getState());
         PacketHandler packetHandler = new PacketHandler(context);
