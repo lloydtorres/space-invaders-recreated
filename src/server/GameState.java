@@ -236,13 +236,13 @@ public class GameState implements StateSubject{
             addBulletEntity(bulletX, bulletY, BulletSender.PLAYER);
             shootCooldown.add(playerId);
 
-            // Removes the player's ID from the list after 2 seconds allowing the player to shoot again
+            // Removes the player's ID from the list after 1 second allowing the player to shoot again
             executorService.schedule(() -> {
                 int indexToRemove = shootCooldown.indexOf(playerId);
                 if(indexToRemove != -1){
                     shootCooldown.remove(indexToRemove);
                 }
-            }, 2, TimeUnit.SECONDS);
+            }, 1, TimeUnit.SECONDS);
         }
     }
 
