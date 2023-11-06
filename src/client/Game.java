@@ -1,8 +1,7 @@
 package client;
 
 import client.strategies.*;
-import client.strategies.colorizer.PinkColorizer;
-import client.strategies.colorizer.YellowColorizer;
+import client.strategies.colorizer.*;
 import common.EntityType;
 import common.MoveDirection;
 import common.packets.ToServer.MovePacket;
@@ -16,6 +15,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 ///// JPANEL CLASS (DRAWS GRAPHICS, LISTENS FOR KEY INPUT, CALLS FOR MOVES)
@@ -30,8 +30,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private final Client client;
     private final BulletDrawStrategy bulletDrawStrategy = new BulletDrawStrategy();
     private final ShieldDrawStrategy shieldDrawStrategy = new ShieldDrawStrategy();
-    private final PlayerDrawStrategy playerDrawStrategy = new PlayerDrawStrategy(new PinkColorizer(new Color(0, 255, 0)), "sprites/cannon.png");
-    private final EnemyDrawStrategy enemyDrawStrategy = new EnemyDrawStrategy(new PinkColorizer(new Color(255, 255, 255)), "sprites/c1.png");
+    private final Color originalColor = new Color(0, 255, 0);
+    private final Colorizer[] playerColorizers = {new WhiteColorizer(originalColor), new BlueColorizer(originalColor), new PinkColorizer(originalColor), new PurpleColorizer(originalColor), new YellowColorizer(originalColor)};
+    private final EnemyDrawStrategy enemyDrawStrategy = new EnemyDrawStrategy(playerColorizers[0], "sprites/c11.png");
     private final Font scoreFont = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
     private final Map<Integer, ClientEntity> entities;
     private boolean isRunning;
@@ -49,7 +50,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
         addKeyListener(this);
         lastFrameTime = System.currentTimeMillis();
         timeStep = 1000.0 / refreshRate;
-
     }
     @Override
     protected void paintComponent(Graphics g) {
@@ -141,7 +141,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
         DrawStrategy drawStrategy = null;
         switch (entityType){
             case PLAYER:
-                drawStrategy = playerDrawStrategy;
+                drawStrategy = new PlayerDrawStrategy(playerColorizers[id % 5], "sprites/cannon.png");;
                 break;
             case SHIELD:
                 drawStrategy = shieldDrawStrategy;

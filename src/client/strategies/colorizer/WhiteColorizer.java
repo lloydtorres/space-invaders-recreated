@@ -6,12 +6,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class PurpleColorizer implements Colorizer{
-    private final Color purpleColor = new Color(123, 0, 255);
+public class WhiteColorizer implements Colorizer{
+    private final Color purpleColor = new Color(255, 255, 255);
     private final Color colorToChange;
     private final int tolerance = 50;
 
-    public PurpleColorizer(Color colorToChange)
+    public WhiteColorizer(Color colorToChange)
     {
         this.colorToChange = colorToChange;
     }

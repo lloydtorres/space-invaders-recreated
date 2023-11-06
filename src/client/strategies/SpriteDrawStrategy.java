@@ -1,7 +1,6 @@
 package client.strategies;
 
 import client.strategies.colorizer.Colorizer;
-import client.strategies.colorizer.PinkColorizer;
 
 import java.awt.*;
 
