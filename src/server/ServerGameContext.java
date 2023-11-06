@@ -1,11 +1,7 @@
 package server;
 
-import common.*;
+import common.GameContext;
 import common.packets.Packet;
-import common.packets.ToClient.IdPacket;
-import common.packets.ToClient.MessagePacket;
-import common.packets.ToClient.PlayerAddPacket;
-import common.packets.ToClient.PlayerRemovePacket;
 import common.packets.ToServer.MovePacket;
 import common.packets.ToServer.ShootPacket;
 
@@ -13,8 +9,9 @@ import common.packets.ToServer.ShootPacket;
 public class ServerGameContext implements GameContext {
     private Server server;
     private GameState gameState;
-    public ServerGameContext(Server server){
+    public ServerGameContext(Server server, GameState gameState){
         this.server = server;
+        this.gameState = gameState;
     }
     @Override
     public void processPacket(Packet packet) {

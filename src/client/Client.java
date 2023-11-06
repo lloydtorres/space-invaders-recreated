@@ -1,7 +1,10 @@
 package client;
+import common.EntityType;
 import common.packets.Packet;
 import common.PacketHandler;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Map;
@@ -13,11 +16,18 @@ public class Client {
     private ServerHandler serverHandler;
     private ClientPlayer thisPlayer;
     private Map<Integer, ClientPlayer> otherPlayerList;
+    private Game game;
     public Client(){
-        connectionFrame = new ConnectionFrame("Space Invaders MP", this);
-        gameFrame = new GameFrame("Space Invaders MP", this);
-        otherPlayerList = new ConcurrentHashMap<>();
-        start();
+        try{
+            game = new Game(this, 30);
+            connectionFrame = new ConnectionFrame("Space Invaders MP", this);
+            gameFrame = new GameFrame("Space Invaders MP", this, game);
+            otherPlayerList = new ConcurrentHashMap<>();
+            connectionFrame.setVisible(true);
+        }catch (IOException | FontFormatException e){
+            System.out.println("Could not launch the client :(");
+            e.printStackTrace();
+        }
     }
     public ClientPlayer getThisPlayer(){
         return thisPlayer;
@@ -30,9 +40,6 @@ public class Client {
     }
     public void sendPacket(Packet packet){
         serverHandler.enqueuePacket(packet);
-    }
-    private void start(){
-        connectionFrame.setVisible(true);
     }
 
     // This is called when "Connect" button is pressed
@@ -48,8 +55,6 @@ public class Client {
             return;
         }
         gameFrame.start();
-
-        gameFrame.getGame().setThisPlayerName(playerName);
         thisPlayer = new ClientPlayer(playerName);
 
         // sending/receiving packets
@@ -62,6 +67,8 @@ public class Client {
         serverHandler.sendPlayerName(playerName);
         Thread serverHandlerThread = new Thread(serverHandler);
         serverHandlerThread.start();
+        Thread gameThread = new Thread(game);
+        gameThread.start();
     }
     private Socket connectToServer(String serverAddress, int serverPort){
         try{
@@ -73,6 +80,8 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        new Client();
+        SwingUtilities.invokeLater(() -> {
+            new Client();
+        });
     }
 }

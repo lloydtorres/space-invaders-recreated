@@ -57,6 +57,8 @@ public class GameState implements StateSubject{
         livesLeft = 3;
     }
     private void generateEnemies(){
+        addEnemyEntity(200, 100, 360);
+        addEnemyEntity(400, 100, 360);
         return;
     }
     private void generateShields(){
@@ -138,7 +140,7 @@ public class GameState implements StateSubject{
         }
 
     }
-    private void removeEntity(int id, EntityType entityType){
+    public void removeEntity(int id, EntityType entityType){
         ServerEntity entity = null;
         switch(entityType){
             case ENEMY:
@@ -203,7 +205,7 @@ public class GameState implements StateSubject{
                 canMove = (player.getX() - player.getXSpeed()) >= LEFT_MOVEMENT_BOUND;
                 break;
             case RIGHT:
-                canMove = (player.getX() + player.getWidth() + player.getXSpeed()) <= RIGHT_MOVEMENT_BOUND;
+                canMove = (player.getX() + player.getXSpeed()) <= RIGHT_MOVEMENT_BOUND;
                 break;
         }
         if(canMove){

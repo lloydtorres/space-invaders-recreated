@@ -5,7 +5,6 @@ public abstract class GameStateEvent {
     public GameStateEvent(EventType eventType){
         this.eventType = eventType;
     }
-
     public EventType getEventType() {
         return eventType;
     }
