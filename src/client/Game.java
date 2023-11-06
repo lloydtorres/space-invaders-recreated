@@ -2,10 +2,8 @@ package client;
 
 import client.strategies.*;
 import common.EntityType;
-import common.MoveDirection;
-import common.packets.ToServer.MovePacket;
-import common.packets.ToServer.ShootPacket;
-import server.GameState;
+import common.packets.IPacketFactory;
+import common.packets.Packet;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,6 +24,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 //    private final Font fontM = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 100);
 //    private final Font fontS = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 40);
     private final Client client;
+    private final IPacketFactory packetFactory;
     private final BulletDrawStrategy bulletDrawStrategy = new BulletDrawStrategy();
     private final ShieldDrawStrategy shieldDrawStrategy = new ShieldDrawStrategy();
     private final PlayerDrawStrategy playerDrawStrategy = new PlayerDrawStrategy(new ImageIcon("sprites/cannon.png").getImage());
@@ -37,10 +36,11 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private double timeStep;
     private int score = 0;
     private int livesLeft = 0;
-    public Game(Client client, int refreshRate) throws IOException, FontFormatException {
+    public Game(Client client, IPacketFactory packetFactory, int refreshRate) throws IOException, FontFormatException {
         super();
         keys = new boolean[KeyEvent.KEY_LAST + 1];
         this.client = client;
+        this.packetFactory = packetFactory;
         entities = new ConcurrentHashMap<>();
         isRunning = true;
         setPreferredSize(new Dimension(770, 652));
@@ -159,17 +159,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
     }
 
     private void sendInputData(){
-        if (keys[KeyEvent.VK_SPACE]){
-            client.sendPacket(new ShootPacket(client.getThisPlayer().getId()));
-        }
-        if (keys[KeyEvent.VK_LEFT] && keys[KeyEvent.VK_RIGHT]) {
-            return;
-        }
-        if(keys[KeyEvent.VK_LEFT]){
-            client.sendPacket(new MovePacket(client.getThisPlayer().getId(), MoveDirection.LEFT));
-        }
-        if(keys[KeyEvent.VK_RIGHT]){
-            client.sendPacket(new MovePacket(client.getThisPlayer().getId(), MoveDirection.RIGHT));
+        Packet packetToSend = packetFactory.getPacket(client.getThisPlayer().getId(), keys);
+        if(packetToSend != null){
+            client.sendPacket(packetToSend);
         }
     }
     @Override
