@@ -67,9 +67,17 @@ public class GameState implements StateSubject{
     }
 
     private void generateEnemies(){
-        addEnemyEntity(200, 100, 360);
-        addEnemyEntity(400, 100, 360);
-        return;
+        for(int i= 0; i<5; i++){
+            //First enemy that will be cloned for the row
+            EnemyServerEntity enemy = addEnemyEntity(160, 100+29*i, 360);
+            for(int j = 1; j<10; j++){
+                EnemyServerEntity copy = enemy.deepCopy();
+                copy.setX(160+45*j);
+                int id = copy.getId();
+                enemyEntities.put(id, copy);
+                notifyObservers(new EntityUpdateEvent(copy, false));
+            }
+        }
     }
 
     private void generateShields(){
@@ -180,11 +188,12 @@ public class GameState implements StateSubject{
     }
 
 
-    private void addEnemyEntity(float x, float y, int pointWorth){
+    private EnemyServerEntity addEnemyEntity(float x, float y, int pointWorth){
         EnemyServerEntity enemyEntity = new EnemyServerEntity(x, y, pointWorth);
         int id = enemyEntity.getId();
         enemyEntities.put(id, enemyEntity);
         notifyObservers(new EntityUpdateEvent(enemyEntity, false));
+        return enemyEntity;
     }
 
     private void addBulletEntity(float x, float y, BulletSender bulletSender){
