@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class GameState implements StateSubject{
     private Map<Integer, PlayerServerEntity> playerEntities;
@@ -16,6 +19,8 @@ public class GameState implements StateSubject{
     private Map<Integer, BulletServerEntity> bulletEntities;
     private Map<Integer, ShieldFragmentServerEntity> shieldFragmentEntities;
     private List<StateObserver> observers;
+    private List<Integer> shootCooldown;
+    private ScheduledExecutorService executorService;
     private final int RIGHT_MOVEMENT_BOUND = 740;
     private final int LEFT_MOVEMENT_BOUND = 12;
     private final int BOUNDS_CENTER = (RIGHT_MOVEMENT_BOUND - LEFT_MOVEMENT_BOUND) / 2;
@@ -24,12 +29,15 @@ public class GameState implements StateSubject{
     private final int GAME_HEIGHT = 652;
     private int livesLeft = 3;
     private int score = 0;
+    
     public GameState(){
         playerEntities = new ConcurrentHashMap<>();
         enemyEntities = new ConcurrentHashMap<>();
         bulletEntities = new ConcurrentHashMap<>();
         shieldFragmentEntities = new ConcurrentHashMap<>();
         observers = new ArrayList<>();
+        shootCooldown = new ArrayList<>();
+        executorService = Executors.newScheduledThreadPool(1);
     }
 
     @Override
@@ -50,20 +58,24 @@ public class GameState implements StateSubject{
             observer.onEvent(event);
         }
     }
+
     public void initializeGame(){
         generateEnemies();
         generateShields();
         score = 0;
         livesLeft = 3;
     }
+
     private void generateEnemies(){
         addEnemyEntity(200, 100, 360);
         addEnemyEntity(400, 100, 360);
         return;
     }
+
     private void generateShields(){
         return;
     }
+
     public void updateBullets(){
         removeBulletsOutOfBounds();
         for(BulletServerEntity entity : bulletEntities.values()){
@@ -77,6 +89,7 @@ public class GameState implements StateSubject{
             }
         }
     }
+
     private void moveEntity(ServerEntity entity, MoveDirection moveDirection){
         entity.move(moveDirection);
         notifyObservers(new EntityUpdateEvent(entity, false));
@@ -86,10 +99,10 @@ public class GameState implements StateSubject{
         return;
     }
 
-
     public void shootFromEnemy(int enemyId){
         return;
     }
+
     private void removeBulletsOutOfBounds(){
         for(int key : bulletEntities.keySet()){
             BulletServerEntity entity = bulletEntities.get(key);
@@ -98,7 +111,6 @@ public class GameState implements StateSubject{
             }
         }
     }
-
 
     // Straightforward, although a slow, solution to collision checking
     // Next steps would be to implement something like a Grid map or a Quadtree for storing entities.
@@ -140,6 +152,7 @@ public class GameState implements StateSubject{
         }
 
     }
+
     public void removeEntity(int id, EntityType entityType){
         ServerEntity entity = null;
         switch(entityType){
@@ -158,6 +171,7 @@ public class GameState implements StateSubject{
         }
         notifyObservers(new EntityUpdateEvent(entity, true));
     }
+
     public int addPlayerEntity(){
         PlayerServerEntity playerEntity = new PlayerServerEntity(BOUNDS_CENTER, PLAYERS_LINE_HEIGHT);
         int id = playerEntity.getId();
@@ -172,6 +186,7 @@ public class GameState implements StateSubject{
         enemyEntities.put(id, enemyEntity);
         notifyObservers(new EntityUpdateEvent(enemyEntity, false));
     }
+
     private void addBulletEntity(float x, float y, BulletSender bulletSender){
         BulletServerEntity bulletEntity = new BulletServerEntity(x, y, bulletSender);
         int id = bulletEntity.getId();
@@ -212,12 +227,23 @@ public class GameState implements StateSubject{
             moveEntity(player, moveDirection);
         }
     }
-    // needs some sort of shooting timer. In this implementation players can just spam bullets
+
     public void shootFromPlayer(int playerId){
-        PlayerServerEntity entity = playerEntities.get(playerId);
-        float bulletX = entity.getX() + entity.getWidth() / 2;
-        float bulletY = entity.getY() - 8;
-        addBulletEntity(bulletX, bulletY, BulletSender.PLAYER);
+        if(!shootCooldown.contains(playerId)){
+            PlayerServerEntity entity = playerEntities.get(playerId);
+            float bulletX = entity.getX() + entity.getWidth() / 2;
+            float bulletY = entity.getY() - 8;
+            addBulletEntity(bulletX, bulletY, BulletSender.PLAYER);
+            shootCooldown.add(playerId);
+
+            // Removes the player's ID from the list after 1 second allowing the player to shoot again
+            executorService.schedule(() -> {
+                int indexToRemove = shootCooldown.indexOf(playerId);
+                if(indexToRemove != -1){
+                    shootCooldown.remove(indexToRemove);
+                }
+            }, 1, TimeUnit.SECONDS);
+        }
     }
 
     // There is a better way to do this, too lazy to do this now
