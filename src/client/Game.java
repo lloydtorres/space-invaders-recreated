@@ -1,6 +1,8 @@
 package client;
 
 import client.strategies.*;
+import client.strategies.colorizer.PinkColorizer;
+import client.strategies.colorizer.YellowColorizer;
 import common.EntityType;
 import common.MoveDirection;
 import common.packets.ToServer.MovePacket;
@@ -28,8 +30,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private final Client client;
     private final BulletDrawStrategy bulletDrawStrategy = new BulletDrawStrategy();
     private final ShieldDrawStrategy shieldDrawStrategy = new ShieldDrawStrategy();
-    private final PlayerDrawStrategy playerDrawStrategy = new PlayerDrawStrategy(new ImageIcon("sprites/cannon.png").getImage());
-    private final EnemyDrawStrategy enemyDrawStrategy = new EnemyDrawStrategy(new ImageIcon("sprites/c1.png").getImage());
+    private final PlayerDrawStrategy playerDrawStrategy = new PlayerDrawStrategy(new PinkColorizer(new Color(0, 255, 0)), "sprites/cannon.png");
+    private final EnemyDrawStrategy enemyDrawStrategy = new EnemyDrawStrategy(new PinkColorizer(new Color(255, 255, 255)), "sprites/c1.png");
     private final Font scoreFont = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
     private final Map<Integer, ClientEntity> entities;
     private boolean isRunning;

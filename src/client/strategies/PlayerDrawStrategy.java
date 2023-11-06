@@ -1,16 +1,11 @@
 package client.strategies;
 
+import client.strategies.colorizer.Colorizer;
 
 
-import java.awt.*;
+public class PlayerDrawStrategy extends SpriteDrawStrategy {
 
-public class PlayerDrawStrategy implements DrawStrategy {
-    private Image playerSprite;
-    public PlayerDrawStrategy(Image playerSprite){
-        this.playerSprite = playerSprite;
-    }
-    @Override
-    public void execute(int x, int y, Graphics2D graphics2D) {
-        graphics2D.drawImage(playerSprite,x,y,null);
+    public PlayerDrawStrategy(Colorizer colorizer, String spritePath) {
+        super(colorizer, spritePath);
     }
 }
