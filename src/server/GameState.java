@@ -81,7 +81,11 @@ public class GameState implements StateSubject{
     }
 
     private void generateShields(){
-        return;
+        for(int i = 100; i < 200; i+=10){
+            for(int j = 500; j < 550; j += 10 ){
+                addShieldFragmentEntity(i, j);
+            }
+        }
     }
 
     public void updateBullets(){
@@ -184,6 +188,7 @@ public class GameState implements StateSubject{
         PlayerServerEntity playerEntity = new PlayerServerEntity(BOUNDS_CENTER, PLAYERS_LINE_HEIGHT);
         int id = playerEntity.getId();
         playerEntities.put(id, playerEntity);
+        notifyObservers(new EntityUpdateEvent(playerEntity, false));
         return id;
     }
 
