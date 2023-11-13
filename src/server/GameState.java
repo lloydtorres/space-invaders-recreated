@@ -3,7 +3,7 @@ package server;
 import common.EntityType;
 import common.MoveDirection;
 import server.entities.*;
-import server.entities.EnemyServerEntity;
+import server.entities.enemy.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-public class GameState implements StateSubject{
+public class GameState implements StateSubject {
     private Map<Integer, PlayerServerEntity> playerEntities;
     private Map<Integer, EnemyServerEntity> enemyEntities;
     private Map<Integer, BulletServerEntity> bulletEntities;
@@ -29,8 +29,8 @@ public class GameState implements StateSubject{
     private final int GAME_HEIGHT = 652;
     private int livesLeft = 3;
     private int score = 0;
-    
-    public GameState(){
+
+    public GameState() {
         playerEntities = new ConcurrentHashMap<>();
         enemyEntities = new ConcurrentHashMap<>();
         bulletEntities = new ConcurrentHashMap<>();
@@ -42,7 +42,7 @@ public class GameState implements StateSubject{
 
     @Override
     public void addObserver(StateObserver observer) {
-        if(!observers.contains(observer)){
+        if (!observers.contains(observer)) {
             observers.add(observer);
         }
     }
@@ -54,25 +54,35 @@ public class GameState implements StateSubject{
 
     @Override
     public void notifyObservers(GameStateEvent event) {
-        for(StateObserver observer : observers){
+        for (StateObserver observer : observers) {
             observer.onEvent(event);
         }
     }
 
-    public void initializeGame(){
+    public void initializeGame() {
         generateEnemies();
         generateShields();
         score = 0;
         livesLeft = 3;
     }
 
-    private void generateEnemies(){
-        for(int i= 0; i<5; i++){
+    private void generateEnemies() {
+        for (int i = 0; i < 5; i++) {
+            IEnemy e;
+            if (i == 0) {
+                e = new BasicEnemyDecorator(new EnemyServerEntity(160, 100));
+            } else if (i < 3) {
+                e = new StandardEnemyDecorator(new EnemyServerEntity(160, 100 + 29 * i));
+            }
+            else {
+                e = new EliteEnemyDecorator(new EnemyServerEntity(160, 100 + 29 * i));
+            }
+//            cant cast to concrete class
+
             //First enemy that will be cloned for the row
-            EnemyServerEntity enemy = addEnemyEntity(160, 100+29*i, 360);
-            for(int j = 1; j<10; j++){
+            for (int j = 1; j < 10; j++) {
                 EnemyServerEntity copy = enemy.deepCopy();
-                copy.setX(160+45*j);
+                copy.setX(160 + 45 * j);
                 int id = copy.getId();
                 enemyEntities.put(id, copy);
                 notifyObservers(new EntityUpdateEvent(copy, false));
@@ -80,18 +90,18 @@ public class GameState implements StateSubject{
         }
     }
 
-    private void generateShields(){
-        for(int i = 100; i < 200; i+=10){
-            for(int j = 500; j < 550; j += 10 ){
+    private void generateShields() {
+        for (int i = 100; i < 200; i += 10) {
+            for (int j = 500; j < 550; j += 10) {
                 addShieldFragmentEntity(i, j);
             }
         }
     }
 
-    public void updateBullets(){
+    public void updateBullets() {
         removeBulletsOutOfBounds();
-        for(BulletServerEntity entity : bulletEntities.values()){
-            switch (entity.getBulletSender()){
+        for (BulletServerEntity entity : bulletEntities.values()) {
+            switch (entity.getBulletSender()) {
                 case ENEMY:
                     moveEntity(entity, MoveDirection.DOWN);
                     break;
@@ -102,23 +112,23 @@ public class GameState implements StateSubject{
         }
     }
 
-    private void moveEntity(ServerEntity entity, MoveDirection moveDirection){
+    private void moveEntity(ServerEntity entity, MoveDirection moveDirection) {
         entity.move(moveDirection);
         notifyObservers(new EntityUpdateEvent(entity, false));
     }
 
-    public void moveEnemies(){
+    public void moveEnemies() {
         return;
     }
 
-    public void shootFromEnemy(int enemyId){
+    public void shootFromEnemy(int enemyId) {
         return;
     }
 
-    private void removeBulletsOutOfBounds(){
-        for(int key : bulletEntities.keySet()){
+    private void removeBulletsOutOfBounds() {
+        for (int key : bulletEntities.keySet()) {
             BulletServerEntity entity = bulletEntities.get(key);
-            if(entity.getY() <= 0 || entity.getY() >= GAME_HEIGHT){
+            if (entity.getY() <= 0 || entity.getY() >= GAME_HEIGHT) {
                 removeEntity(key, EntityType.BULLET);
             }
         }
@@ -126,24 +136,24 @@ public class GameState implements StateSubject{
 
     // Straightforward, although a slow, solution to collision checking
     // Next steps would be to implement something like a Grid map or a Quadtree for storing entities.
-    public void checkBulletCollisions(){
-        for(int bulletId : bulletEntities.keySet()){
+    public void checkBulletCollisions() {
+        for (int bulletId : bulletEntities.keySet()) {
             BulletServerEntity bullet = bulletEntities.get(bulletId);
-            for(int shieldId : shieldFragmentEntities.keySet()){
-                if(bullet.intersects(shieldFragmentEntities.get(shieldId))){
+            for (int shieldId : shieldFragmentEntities.keySet()) {
+                if (bullet.intersects(shieldFragmentEntities.get(shieldId))) {
                     removeEntity(bulletId, EntityType.BULLET);
                     removeEntity(shieldId, EntityType.SHIELD);
                     break;
                 }
             }
-            if(bulletEntities.get(bulletId) == null){
+            if (bulletEntities.get(bulletId) == null) {
                 break;
             }
-            switch (bullet.getBulletSender()){
+            switch (bullet.getBulletSender()) {
                 case PLAYER:
-                    for(int enemyId : enemyEntities.keySet()){
+                    for (int enemyId : enemyEntities.keySet()) {
                         EnemyServerEntity enemy = enemyEntities.get(enemyId);
-                        if(bullet.intersects(enemy)){
+                        if (bullet.intersects(enemy)) {
                             addPoints(enemy.getPointWorth());
                             removeEntity(bulletId, EntityType.BULLET);
                             removeEntity(enemyId, EntityType.ENEMY);
@@ -152,8 +162,8 @@ public class GameState implements StateSubject{
                     }
                     break;
                 case ENEMY:
-                    for(int playerId : playerEntities.keySet()){
-                        if(bullet.intersects(playerEntities.get(playerId))){
+                    for (int playerId : playerEntities.keySet()) {
+                        if (bullet.intersects(playerEntities.get(playerId))) {
                             removeLife();
                             removeEntity(bulletId, EntityType.BULLET);
                             break;
@@ -165,9 +175,9 @@ public class GameState implements StateSubject{
 
     }
 
-    public void removeEntity(int id, EntityType entityType){
+    public void removeEntity(int id, EntityType entityType) {
         ServerEntity entity = null;
-        switch(entityType){
+        switch (entityType) {
             case ENEMY:
                 entity = enemyEntities.remove(id);
                 break;
@@ -184,7 +194,7 @@ public class GameState implements StateSubject{
         notifyObservers(new EntityUpdateEvent(entity, true));
     }
 
-    public int addPlayerEntity(){
+    public int addPlayerEntity() {
         PlayerServerEntity playerEntity = new PlayerServerEntity(BOUNDS_CENTER, PLAYERS_LINE_HEIGHT);
         int id = playerEntity.getId();
         playerEntities.put(id, playerEntity);
@@ -193,43 +203,45 @@ public class GameState implements StateSubject{
     }
 
 
-    private EnemyServerEntity addEnemyEntity(float x, float y, int pointWorth){
-        EnemyServerEntity enemyEntity = new EnemyServerEntity(x, y, pointWorth);
+    private EnemyServerEntity addEnemyEntity(float x, float y) {
+        EnemyServerEntity enemyEntity = new EnemyServerEntity(x, y);
         int id = enemyEntity.getId();
         enemyEntities.put(id, enemyEntity);
         notifyObservers(new EntityUpdateEvent(enemyEntity, false));
         return enemyEntity;
     }
 
-    private void addBulletEntity(float x, float y, BulletSender bulletSender){
+    private void addBulletEntity(float x, float y, BulletSender bulletSender) {
         BulletServerEntity bulletEntity = new BulletServerEntity(x, y, bulletSender);
         int id = bulletEntity.getId();
         bulletEntities.put(id, bulletEntity);
         notifyObservers(new EntityUpdateEvent(bulletEntity, false));
     }
 
-    private void addShieldFragmentEntity(float x, float y){
+    private void addShieldFragmentEntity(float x, float y) {
         ShieldFragmentServerEntity shieldFragmentEntity = new ShieldFragmentServerEntity(x, y);
         int id = shieldFragmentEntity.getId();
         shieldFragmentEntities.put(id, shieldFragmentEntity);
         notifyObservers(new EntityUpdateEvent(shieldFragmentEntity, false));
     }
 
-    private void addPoints(int points){
+    private void addPoints(int points) {
         score += points;
         notifyObservers(new ScoreUpdateEvent(score));
     }
-    private void removeLife(){
+
+    private void removeLife() {
         livesLeft--;
         notifyObservers(new LivesLeftUpdateEvent(livesLeft));
-        if(livesLeft <= 0){
+        if (livesLeft <= 0) {
             // handle game over (send game state packet, stop game loop, etc.)
         }
     }
-    public void movePlayer(int id, MoveDirection moveDirection){
+
+    public void movePlayer(int id, MoveDirection moveDirection) {
         PlayerServerEntity player = playerEntities.get(id);
         boolean canMove = false;
-        switch (moveDirection){
+        switch (moveDirection) {
             case LEFT:
                 canMove = (player.getX() - player.getXSpeed()) >= LEFT_MOVEMENT_BOUND;
                 break;
@@ -237,13 +249,13 @@ public class GameState implements StateSubject{
                 canMove = (player.getX() + player.getXSpeed()) <= RIGHT_MOVEMENT_BOUND;
                 break;
         }
-        if(canMove){
+        if (canMove) {
             moveEntity(player, moveDirection);
         }
     }
 
-    public void shootFromPlayer(int playerId){
-        if(!shootCooldown.contains(playerId)){
+    public void shootFromPlayer(int playerId) {
+        if (!shootCooldown.contains(playerId)) {
             PlayerServerEntity entity = playerEntities.get(playerId);
             float bulletX = entity.getX() + entity.getWidth() / 2;
             float bulletY = entity.getY() - 8;
@@ -253,7 +265,7 @@ public class GameState implements StateSubject{
             // Removes the player's ID from the list after 1 second allowing the player to shoot again
             executorService.schedule(() -> {
                 int indexToRemove = shootCooldown.indexOf(playerId);
-                if(indexToRemove != -1){
+                if (indexToRemove != -1) {
                     shootCooldown.remove(indexToRemove);
                 }
             }, 1, TimeUnit.SECONDS);
@@ -261,7 +273,7 @@ public class GameState implements StateSubject{
     }
 
     // There is a better way to do this, too lazy to do this now
-    public Map<Integer, ServerEntity> getAllEntities(){
+    public Map<Integer, ServerEntity> getAllEntities() {
         Map<Integer, ServerEntity> entities = new ConcurrentHashMap<>();
         entities.putAll(playerEntities);
         entities.putAll(bulletEntities);
