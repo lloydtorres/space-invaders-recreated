@@ -20,6 +20,11 @@ public class EnemyServerEntity extends ServerEntity implements Cloneable, IEnemy
         return pointWorth;
     }
 
+    @Override
+    public EnemyServerEntity getOriginalEntity() {
+        return this;
+    }
+
     public EnemyServerEntity shallowCopy() {
         try {
             return (EnemyServerEntity) this.clone();

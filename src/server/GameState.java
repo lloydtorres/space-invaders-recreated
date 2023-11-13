@@ -77,11 +77,13 @@ public class GameState implements StateSubject {
             else {
                 e = new EliteEnemyDecorator(new EnemyServerEntity(160, 100 + 29 * i));
             }
-//            cant cast to concrete class
+
+            EnemyServerEntity entity = e.getOriginalEntity();
+            System.out.println(entity.getPointWorth());
 
             //First enemy that will be cloned for the row
             for (int j = 1; j < 10; j++) {
-                EnemyServerEntity copy = enemy.deepCopy();
+                EnemyServerEntity copy = entity.deepCopy();
                 copy.setX(160 + 45 * j);
                 int id = copy.getId();
                 enemyEntities.put(id, copy);

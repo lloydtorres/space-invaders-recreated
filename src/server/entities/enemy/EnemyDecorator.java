@@ -8,4 +8,10 @@ public abstract class EnemyDecorator implements IEnemy {
     }
 
     public abstract int getPointWorth();
+
+    @Override
+    public final EnemyServerEntity getOriginalEntity() {
+        return enemy.getOriginalEntity();
+    }
+
 }
