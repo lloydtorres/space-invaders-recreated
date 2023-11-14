@@ -1,12 +1,14 @@
 package server.entities.enemy;
 
+import server.entities.ServerEntity;
+
 public class EliteEnemyDecorator extends EnemyDecorator {
-    public EliteEnemyDecorator(IEnemy enemy) {
-        super(enemy);
+    public EliteEnemyDecorator(ServerEntity serverEntity) {
+        super(serverEntity);
     }
 
     @Override
     public int getPointWorth() {
-        return enemy.getPointWorth() * 3;
+        return serverEntity.getPointWorth() * 10;
     }
 }

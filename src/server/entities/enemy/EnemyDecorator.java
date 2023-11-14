@@ -1,17 +1,12 @@
 package server.entities.enemy;
 
-public abstract class EnemyDecorator implements IEnemy {
-    protected IEnemy enemy;
+import server.entities.ServerEntity;
 
-    public EnemyDecorator(IEnemy enemy) {
-        this.enemy = enemy;
+public abstract class EnemyDecorator extends ServerEntity {
+    protected ServerEntity serverEntity;
+
+    public EnemyDecorator(ServerEntity serverEntity) {
+        super(serverEntity);
+        this.serverEntity = serverEntity;
     }
-
-    public abstract int getPointWorth();
-
-    @Override
-    public final EnemyServerEntity getOriginalEntity() {
-        return enemy.getOriginalEntity();
-    }
-
 }
