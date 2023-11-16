@@ -12,6 +12,7 @@ import common.packets.IPacketFactory;
 import common.packets.PacketFactory;
 import common.packets.ToClient.*;
 import common.packets.Packet;
+import common.packets.builders.*;
 import server.entities.ServerEntity;
 
 // main server class. waits for client connections, assigns them their unique ids
@@ -21,9 +22,9 @@ public class Server {
     private final ServerSocket serverSocket;
     private final Map<Integer, ServerPlayer> connectedPlayers;
 
-    public Server(int port) throws IOException{
-            serverSocket = new ServerSocket(port);
-            connectedPlayers = new ConcurrentHashMap<>();
+    public Server(int port) throws IOException {
+        serverSocket = new ServerSocket(port);
+        connectedPlayers = new ConcurrentHashMap<>();
     }
 
     public void addServerPlayer(int id, ServerPlayer serverPlayer) {
@@ -34,7 +35,7 @@ public class Server {
         connectedPlayers.remove(id);
         GameLoop gameLoop = GameLoop.getInstance();
         gameLoop.getState().removeEntity(id, EntityType.PLAYER);
-        if(connectedPlayers.size() == 0){
+        if (connectedPlayers.size() == 0) {
             gameLoop.setGameRunning(false);
         }
     }
@@ -70,7 +71,11 @@ public class Server {
     }
 
     public void broadcastMessage(String message) {
-        broadcastPacket(new MessagePacket(Configuration.SERVER_ID, message));
+        MessagePacket messagePacket = new MessagePacketBuilder()
+                .setSenderId(Configuration.SERVER_ID)
+                .setMessage(message)
+                .getResult();
+        broadcastPacket(messagePacket);
     }
 
     public void broadcastPacket(Packet packet) {
@@ -86,11 +91,17 @@ public class Server {
     public void sendAllPlayersToPlayer(int playerId) {
         ClientHandler clientHandler = connectedPlayers.get(playerId).getClientHandler();
         for (ServerPlayer serverPlayer : connectedPlayers.values()) {
-            clientHandler.enqueuePacket(new PlayerAddPacket(Configuration.SERVER_ID, serverPlayer.getPlayerName(), serverPlayer.getId()));
+            PlayerAddPacket playerAddPacket = new PlayerAddPacketBuilder()
+                    .setSenderId(Configuration.SERVER_ID)
+                    .setPlayerId(serverPlayer.getId())
+                    .setPlayerName(serverPlayer.getPlayerName())
+                    .getResult();
+            clientHandler.enqueuePacket(playerAddPacket);
         }
     }
-    public void sendStateToPlayer(int playerId){
-        // send all of the entity data, score and lives left to a player. This should only be called when a new player joins
+
+    public void sendStateToPlayer(int playerId) {
+        // send all the entity data, score and lives left to a player. This should only be called when a new player joins
         // after this, state update should be sent only by observing the state
         GameLoop gameLoop = GameLoop.getInstance();
         System.out.println("Singleton's hashcode: " + gameLoop.hashCode());
@@ -98,11 +109,28 @@ public class Server {
         int livesLeft = gameLoop.getState().getLivesLeft();
         Map<Integer, ServerEntity> entities = gameLoop.getState().getAllEntities();
         ClientHandler clientHandler = connectedPlayers.get(playerId).getClientHandler();
-        clientHandler.enqueuePacket(new ScoreUpdatePacket(Configuration.SERVER_ID, score));
-        clientHandler.enqueuePacket(new LivesLeftUpdatePacket(Configuration.SERVER_ID, livesLeft));
-        for (ServerEntity entity : entities.values()){
-            clientHandler.enqueuePacket(new EntityUpdatePacket(Configuration.SERVER_ID,
-                    entity.getEntityType(), entity.getId(), entity.getX(), entity.getY()));
+
+        ScoreUpdatePacket scoreUpdatePacket = new ScoreUpdatePacketBuilder()
+                .setSenderId(Configuration.SERVER_ID)
+                .setNewScore(score)
+                .getResult();
+        clientHandler.enqueuePacket(scoreUpdatePacket);
+
+        LivesLeftUpdatePacket livesLeftUpdatePacket = new LivesLeftUpdatePacketBuilder()
+                .setSenderId(Configuration.SERVER_ID)
+                .setNewLivesLeft(livesLeft)
+                .getResult();
+        clientHandler.enqueuePacket(livesLeftUpdatePacket);
+
+        for (ServerEntity entity : entities.values()) {
+            EntityUpdatePacket entityUpdatePacket = new EntityUpdatePacketBuilder()
+                    .setSenderId(Configuration.SERVER_ID)
+                    .setEntityId(entity.getId())
+                    .setEntityType(entity.getEntityType())
+                    .setNewX(entity.getX())
+                    .setNewY(entity.getY())
+                    .getResult();
+            clientHandler.enqueuePacket(entityUpdatePacket);
         }
 
     }
@@ -112,7 +140,7 @@ public class Server {
         try {
             Server server = new Server(port);
             server.start();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Error! Could not start the server.");
         }
     }

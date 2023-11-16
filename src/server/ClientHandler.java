@@ -6,6 +6,7 @@ import common.packets.ToClient.IdPacket;
 import common.packets.ToClient.MessagePacket;
 import common.packets.ToClient.PlayerAddPacket;
 import common.packets.ToClient.PlayerRemovePacket;
+import common.packets.builders.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -88,7 +89,12 @@ public class ClientHandler implements Runnable {
         receiverThread.interrupt();
         server.broadcastMessage("Player <" + serverPlayer.getPlayerName() + "> disconnected from the server!");
         server.appendLineToLog("Client disconnected: " + clientSocket.getInetAddress() + " as <" + serverPlayer.getPlayerName() + ">");
-        server.broadcastPacket(new PlayerRemovePacket(Configuration.SERVER_ID, playerId));
+
+        PlayerRemovePacket playerRemovePacket = new PlayerRemovePacketBuilder()
+                .setSenderId(Configuration.SERVER_ID)
+                .setPlayerId(playerId)
+                .getResult();
+        server.broadcastPacket(playerRemovePacket);
     }
 
     @Override
@@ -99,11 +105,28 @@ public class ClientHandler implements Runnable {
             serverPlayer = new ServerPlayer(playerName, playerId, clientSocket, this);
             server.broadcastMessage("Player <" + playerName + "> joined the server!");
             server.appendLineToLog("New client connected: " + clientSocket.getInetAddress() + " as <" + serverPlayer.getPlayerName() + ">");
-            server.broadcastPacket(new PlayerAddPacket(Configuration.SERVER_ID, playerName, playerId));
+
+            PlayerAddPacket playerAddPacket = new PlayerAddPacketBuilder()
+                    .setSenderId(Configuration.SERVER_ID)
+                    .setPlayerId(playerId)
+                    .setPlayerName(playerName)
+                    .getResult();
+            server.broadcastPacket(playerAddPacket);
             // Put this player and its socket into the players map
             server.addServerPlayer(playerId, serverPlayer);
-            enqueuePacket(new IdPacket(Configuration.SERVER_ID, playerId));
-            enqueuePacket(new MessagePacket(Configuration.SERVER_ID, "Server says HIII!"));
+
+            IdPacket idPacket = new IdPacketBuilder()
+                    .setSenderId(Configuration.SERVER_ID)
+                    .setNewId(playerId)
+                    .getResult();
+            enqueuePacket(idPacket);
+
+            MessagePacket messagePacket = new MessagePacketBuilder()
+                    .setSenderId(Configuration.SERVER_ID)
+                    .setMessage("Server says HIII!")
+                    .getResult();
+            enqueuePacket(messagePacket);
+
             server.sendAllPlayersToPlayer(playerId);
             server.sendStateToPlayer(playerId);
             // start workers for receiving and sending to client

@@ -6,12 +6,15 @@ import common.packets.PacketType;
 public class LivesLeftUpdatePacket extends Packet {
     private int newLivesLeft;
 
-    public LivesLeftUpdatePacket(int senderId, int newLivesLeft) {
-        super(PacketType.LIVES_LEFT_UPDATE, senderId);
-        this.newLivesLeft = newLivesLeft;
+    public LivesLeftUpdatePacket() {
+        super(PacketType.LIVES_LEFT_UPDATE);
     }
 
     public int getNewLivesLeft() {
         return newLivesLeft;
+    }
+
+    public void setNewLivesLeft(int newLivesLeft) {
+        this.newLivesLeft = newLivesLeft;
     }
 }

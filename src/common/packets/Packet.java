@@ -6,12 +6,11 @@ import java.io.Serializable;
 
 public abstract class Packet implements Serializable {
     private static final long serialVersionUID = 1L;
-    private PacketType packetType;
+    private final PacketType packetType;
     private int senderId;
 
-    public Packet(PacketType packetType, int senderId) {
+    public Packet(PacketType packetType) {
         this.packetType = packetType;
-        this.senderId = senderId;
     }
 
     public PacketType getPacketType() {
@@ -20,6 +19,10 @@ public abstract class Packet implements Serializable {
 
     public int getSenderId() {
         return senderId;
+    }
+
+    public void setSenderId(int id){
+        this.senderId = id;
     }
 
     public void handle(GameContext context){
