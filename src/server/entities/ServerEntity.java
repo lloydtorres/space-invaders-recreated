@@ -5,7 +5,7 @@ import common.MoveDirection;
 
 public abstract class ServerEntity {
     private static int idCounter = 0;
-    private final int id;
+    private int id;
     private float X, Y;
     private final float XSpeed, YSpeed;
     private float width, height;
@@ -50,6 +50,10 @@ public abstract class ServerEntity {
 
     public int getId() {
         return id;
+    }
+
+    public void setNewId(){
+        id = idCounter++;
     }
 
     public void setX(float x) {
