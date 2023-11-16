@@ -90,6 +90,7 @@ public class GameState implements StateSubject {
         for (int i = 100; i < 200; i += 10) {
             for (int j = (i==100) ? 510 : 500; j < 550; j += 10) {
                 ShieldFragmentServerEntity shieldCopy = shieldEntity.deepCopy();
+                shieldCopy.setNewId();
                 shieldCopy.setX(i);
                 shieldCopy.setY(j);
                 shieldFragmentEntities.put(shieldCopy.getId(), shieldCopy);

@@ -11,18 +11,13 @@ class Placeholder implements Cloneable{
         this.number = number;
     }
 
-    public Placeholder(Placeholder placeholder){
-        this.text = placeholder.text;
-        this.number = placeholder.number;
-    }
-
     @Override
     public Object clone(){
         try{
             return (Placeholder) super.clone();
         }catch(CloneNotSupportedException ex){
             ex.printStackTrace();
-            return this;
+            return new Placeholder(this.text, this.number);
         }
     }
 }
@@ -35,17 +30,12 @@ public class ShieldFragmentServerEntity extends ServerEntity implements Cloneabl
         placeholder = new Placeholder(text, number);
     }
 
-    public ShieldFragmentServerEntity(ShieldFragmentServerEntity e){
-        super(e);
-        placeholder = new Placeholder(e.placeholder);
-    }
-
     public ShieldFragmentServerEntity shallowCopy(){
         try{
             return (ShieldFragmentServerEntity) this.clone();
         } catch(CloneNotSupportedException ex){
             ex.printStackTrace();
-            return this;
+            return new ShieldFragmentServerEntity(this.getX(), this.getY(), this.placeholder.text, this.placeholder.number);
         }
     }
 
