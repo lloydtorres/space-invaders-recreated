@@ -2,7 +2,7 @@ package server.entities;
 
 import common.EntityType;
 
-class Placeholder{
+class Placeholder implements Cloneable{
     String text;
     int number;
 
@@ -14,6 +14,16 @@ class Placeholder{
     public Placeholder(Placeholder placeholder){
         this.text = placeholder.text;
         this.number = placeholder.number;
+    }
+
+    @Override
+    public Object clone(){
+        try{
+            return (Placeholder) super.clone();
+        }catch(CloneNotSupportedException ex){
+            ex.printStackTrace();
+            return this;
+        }
     }
 }
 
@@ -40,6 +50,8 @@ public class ShieldFragmentServerEntity extends ServerEntity implements Cloneabl
     }
 
     public ShieldFragmentServerEntity deepCopy(){
-        return new ShieldFragmentServerEntity(this);
+        ShieldFragmentServerEntity copy = this.shallowCopy();
+        copy.placeholder = (Placeholder) this.placeholder.clone();
+        return copy;
     }
 }
