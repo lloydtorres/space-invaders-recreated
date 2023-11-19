@@ -2,13 +2,21 @@ package client;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 // This is a connection frame where server address, server port and player name are entered
 // Pressing the button calls a method in the client class
 public class ConnectionFrame extends JFrame {
     public ConnectionFrame(String title, Client listenerClient){
         super(title);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent event) {
+                listenerClient.exitProcedure();
+            }
+        });
         setSize(300, 200);
         JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
         JLabel ipLabel = new JLabel("IP Address:");
