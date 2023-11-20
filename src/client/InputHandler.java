@@ -1,13 +1,14 @@
 package client;
 
+import java.util.Queue;
 import java.util.Stack;
 
 class InputHandler {
     private Command command;
-    private Stack<Command> commandHistory;
+    private FixedSizeQueue<Command> commandHistory;
 
     public InputHandler() {
-        commandHistory = new Stack<>();
+        commandHistory = new FixedSizeQueue<>(50);
     }
 
     public void setCommand(Command command) {
@@ -18,12 +19,12 @@ class InputHandler {
         if(command == null)
             return;
         command.execute();
-        commandHistory.push(command);
+        commandHistory.enqueue(command);
     }
 
     public void undoLastCommand() {
         if (!commandHistory.isEmpty()) {
-            Command lastCommand = commandHistory.pop();
+            Command lastCommand = commandHistory.dequeue();
             lastCommand.undo();
         }
     }
