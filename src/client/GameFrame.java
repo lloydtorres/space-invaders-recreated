@@ -37,6 +37,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -56,7 +58,13 @@ public class GameFrame extends JFrame {
     }
 
     public void start() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent event) {
+                client.exitProcedure();
+            }
+        });
         setSize(1000, 800);
 
         JTextPane logText = new JTextPane();

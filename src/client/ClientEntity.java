@@ -1,6 +1,9 @@
 package client;
 
 import client.strategies.DrawStrategy;
+import common.EntityType;
+
+import javax.swing.text.html.parser.Entity;
 import java.awt.*;
 
 public class ClientEntity {

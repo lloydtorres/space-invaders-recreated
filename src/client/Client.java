@@ -19,10 +19,13 @@ public class Client {
     private ClientPlayer thisPlayer;
     private Map<Integer, ClientPlayer> otherPlayerList;
     private Game game;
+    private SoundPlayer soundPlayer;
     public Client(){
         try{
             IPacketFactory packetFactory = new PacketFactory();
-            game = new Game(this, packetFactory, 30);
+            soundPlayer = new TinySoundAdapter();
+            soundPlayer.setVolume(0.5f);
+            game = new Game(this, packetFactory,30, soundPlayer);
             connectionFrame = new ConnectionFrame("Space Invaders MP", this);
             gameFrame = new GameFrame("Space Invaders MP", this, game);
             otherPlayerList = new ConcurrentHashMap<>();
@@ -80,6 +83,14 @@ public class Client {
             System.err.println("Error: " + e.getMessage());
         }
         return null;
+    }
+    public void exitProcedure(){
+        if(soundPlayer instanceof TinySoundAdapter){
+            ((TinySoundAdapter) soundPlayer).shutdown();
+        }
+        connectionFrame.dispose();
+        gameFrame.dispose();
+        System.exit(0);
     }
 
     public static void main(String[] args) {

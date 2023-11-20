@@ -28,6 +28,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 //    private final Font fontS = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 40);
     private final Client client;
     private final IPacketFactory packetFactory;
+    private final SoundPlayer soundPlayer;
     private final BulletDrawStrategy bulletDrawStrategy = new BulletDrawStrategy();
     private final ShieldDrawStrategy shieldDrawStrategy = new ShieldDrawStrategy();
     private final Color originalColor = new Color(0, 255, 0);
@@ -41,11 +42,12 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private double timeStep;
     private int score = 0;
     private int livesLeft = 0;
-    public Game(Client client, IPacketFactory packetFactory, int refreshRate) throws IOException, FontFormatException {
+    public Game(Client client, IPacketFactory packetFactory, int refreshRate, SoundPlayer soundPlayer) throws IOException, FontFormatException {
         super();
         keys = new boolean[KeyEvent.KEY_LAST + 1];
         this.client = client;
         this.packetFactory = packetFactory;
+        this.soundPlayer = soundPlayer;
         entities = new ConcurrentHashMap<>();
         isRunning = true;
         setPreferredSize(new Dimension(770, 652));
@@ -145,10 +147,14 @@ public class Game extends JPanel implements KeyListener, Runnable {
     }
     public void updateScore(int newScore){
         score = newScore;
+        soundPlayer.stop();
+        soundPlayer.play(ClientConfig.getFullSoundPath("ALIEN_HIT"));
     }
 
     public void updateLivesLeft(int newLivesLeft){
         livesLeft = newLivesLeft;
+        soundPlayer.stop();
+        soundPlayer.play(ClientConfig.getFullSoundPath("PLAYER_HIT"));
     }
 
     public void updateEntity(int id, EntityType entityType, int x, int y){
@@ -177,6 +183,10 @@ public class Game extends JPanel implements KeyListener, Runnable {
         }
         clientEntity.setDrawStrategy(drawStrategy);
         entities.put(id, clientEntity);
+        if(entityType == EntityType.BULLET){
+            soundPlayer.stop();
+            soundPlayer.play(ClientConfig.getFullSoundPath("PLAYER_SHOOT"));
+        }
     }
     public void removeEntity(int id){
         entities.remove(id);
