@@ -88,7 +88,7 @@ public class GameState implements StateSubject {
     private void generateShields() {
         ShieldFragmentServerEntity shieldEntity = addShieldFragmentEntity(100, 500);
         for (int i = 100; i < 200; i += 10) {
-            for (int j = (i==100) ? 510 : 500; j < 550; j += 10) {
+            for (int j = (i == 100) ? 510 : 500; j < 550; j += 10) {
                 ShieldFragmentServerEntity shieldCopy = shieldEntity.deepCopy();
                 shieldCopy.setNewId();
                 shieldCopy.setX(i);
@@ -211,7 +211,7 @@ public class GameState implements StateSubject {
     }
 
     private ShieldFragmentServerEntity addShieldFragmentEntity(float x, float y) {
-        ShieldFragmentServerEntity shieldFragmentEntity = new ShieldFragmentServerEntity(x, y, "test", 123);
+        ShieldFragmentServerEntity shieldFragmentEntity = new ShieldFragmentServerEntity(x, y, new Placeholder("test", 123));
         int id = shieldFragmentEntity.getId();
         shieldFragmentEntities.put(id, shieldFragmentEntity);
         notifyObservers(new EntityUpdateEvent(shieldFragmentEntity, false));
