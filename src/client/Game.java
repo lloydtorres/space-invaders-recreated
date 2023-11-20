@@ -3,6 +3,7 @@ package client;
 import client.strategies.*;
 import client.strategies.colorizer.*;
 import common.EntityType;
+import common.MoveDirection;
 import common.packets.IPacketFactory;
 import common.packets.Packet;
 
@@ -34,6 +35,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private final EnemyDrawStrategy enemyDrawStrategy = new EnemyDrawStrategy(playerColorizers[0], "sprites/c11.png");
     private final Font scoreFont = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
     private final Map<Integer, ClientEntity> entities;
+    private InputHandler inputHandler;
     private boolean isRunning;
     private long lastFrameTime;
     private double timeStep;
@@ -50,6 +52,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
         addKeyListener(this);
         lastFrameTime = System.currentTimeMillis();
         timeStep = 1000.0 / refreshRate;
+        inputHandler = new InputHandler();
     }
     @Override
     protected void paintComponent(Graphics g) {
@@ -68,7 +71,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
             if (deltaTime < timeStep) {
                 continue;
             }
-            sendInputData();
+            processInput();
             repaint();
             lastFrameTime = currentTime;
         }
@@ -91,6 +94,25 @@ public class Game extends JPanel implements KeyListener, Runnable {
     @Override
     public void keyReleased(KeyEvent e) {
         keys[e.getKeyCode()] = false;
+    }
+
+    public void processInput(){
+        if(keys[KeyEvent.VK_SPACE]){
+            inputHandler.setCommand(new ShootCommand(client));
+            inputHandler.handleInput();
+        }
+        if (keys[KeyEvent.VK_LEFT]){
+            inputHandler.setCommand(new MoveCommand(client, MoveDirection.LEFT));
+            inputHandler.handleInput();
+        }
+        if (keys[KeyEvent.VK_RIGHT]){
+            inputHandler.setCommand(new MoveCommand(client, MoveDirection.RIGHT));
+            inputHandler.handleInput();
+        }
+        if(keys[KeyEvent.VK_U]){
+            inputHandler.undoLastCommand();
+        }
+
     }
     private void drawBackground(Graphics2D graphics) {
         graphics.setColor(Color.BLACK);
@@ -160,12 +182,12 @@ public class Game extends JPanel implements KeyListener, Runnable {
         entities.remove(id);
     }
 
-    private void sendInputData(){
-        Packet packetToSend = packetFactory.getPacket(client.getThisPlayer().getId(), keys);
-        if(packetToSend != null){
-            client.sendPacket(packetToSend);
-        }
-    }
+//    private void sendInputData(){
+//        Packet packetToSend = packetFactory.getPacket(client.getThisPlayer().getId(), keys);
+//        if(packetToSend != null){
+//            client.sendPacket(packetToSend);
+//        }
+//    }
     @Override
     public void addNotify() {
         super.addNotify();
