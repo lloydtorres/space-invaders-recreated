@@ -1,6 +1,7 @@
 package server.entities.enemy;
 
 import server.entities.ServerEntity;
+import server.visitors.Visitor;
 
 public class EliteEnemyDecorator extends EnemyDecorator {
     public EliteEnemyDecorator(ServerEntity serverEntity) {
@@ -8,7 +9,7 @@ public class EliteEnemyDecorator extends EnemyDecorator {
     }
 
     @Override
-    public int getPointWorth() {
-        return serverEntity.getPointWorth() * 10;
+    public void accept(Visitor visitor) {
+        visitor.visitEliteEnemy(this);
     }
 }

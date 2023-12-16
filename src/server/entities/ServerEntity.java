@@ -8,25 +8,26 @@ public class ServerEntity implements Entity{
     private static int idCounter = 0;
     private int id;
     private float X, Y;
-    private final float XSpeed, YSpeed;
+    private float XSpeed, YSpeed;
     private float width, height;
     private final EntityType entityType;
     protected int pointWorth;
 
-    public ServerEntity(EntityType entityType, float X, float Y, float width, float height, float XSpeed, float YSpeed) {
+    public ServerEntity(EntityType entityType, float X, float Y) {
         this.entityType = entityType;
         this.id = idCounter++;
         this.X = X;
         this.Y = Y;
-        this.width = width;
-        this.height = height;
-        this.XSpeed = XSpeed;
-        this.YSpeed = YSpeed;
     }
 
     public ServerEntity(ServerEntity serverEntity) {
-        this(serverEntity.getEntityType(), serverEntity.getX(), serverEntity.getY(), serverEntity.getWidth(),
-                serverEntity.getHeight(), serverEntity.getXSpeed(), serverEntity.getYSpeed());
+        this(serverEntity.getEntityType(), serverEntity.getX(), serverEntity.getY());
+
+        height = serverEntity.getHeight();
+        width = serverEntity.getWidth();
+        XSpeed = serverEntity.getXSpeed();
+        YSpeed = serverEntity.getYSpeed();
+        pointWorth = serverEntity.pointWorth;
     }
 
     public void move(MoveDirection direction) {
@@ -44,6 +45,12 @@ public class ServerEntity implements Entity{
                 Y += YSpeed;
                 break;
         }
+    }
+
+    @Override
+    public void setSpeed(float XSpeed, float YSpeed) {
+        this.XSpeed = XSpeed;
+        this.YSpeed = YSpeed;
     }
 
     @Override
@@ -108,7 +115,7 @@ public class ServerEntity implements Entity{
     }
 
     public void setPointWorth(int points) {
-        pointWorth = points;
+        this.pointWorth = points;
     }
 
     public boolean intersects(Entity other) {

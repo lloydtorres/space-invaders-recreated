@@ -22,5 +22,7 @@ public interface Entity {
     boolean intersects(Entity other);
     void move(MoveDirection direction);
 
+    void setSpeed(float XSpeed, float YSpeed);
+
     void accept (Visitor visitor);
 }

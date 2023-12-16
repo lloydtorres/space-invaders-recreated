@@ -1,46 +1,61 @@
 package server.visitors;
-import server.entities.*;
+
+import server.entities.BulletServerEntity;
+import server.entities.Entity;
+import server.entities.PlayerServerEntity;
+import server.entities.ShieldFragmentServerEntity;
 import server.entities.enemy.BasicEnemyDecorator;
 import server.entities.enemy.EliteEnemyDecorator;
 import server.entities.enemy.EnemyServerEntity;
 import server.entities.enemy.StandardEnemyDecorator;
 
-public class PointSetterVisitor implements Visitor {
+public class DimensionSetterVisitor implements Visitor{
+
     @Override
     public void visitEnemy(EnemyServerEntity enemy) {
-        enemy.setPointWorth(5);
+        enemy.setHeight(37);
+        enemy.setWidth(24);
     }
 
     @Override
     public void visitBasicEnemy(BasicEnemyDecorator enemy) {
-        enemy.setPointWorth(10);
+        enemy.setHeight(37);
+        enemy.setWidth(24);
     }
 
     @Override
-    public void visitEliteEnemy(EliteEnemyDecorator enemy) { enemy.setPointWorth(50); }
+    public void visitEliteEnemy(EliteEnemyDecorator enemy) {
+        enemy.setHeight(37);
+        enemy.setWidth(24);
+    }
 
     @Override
     public void visitStandartEnemy(StandardEnemyDecorator enemy) {
-        enemy.setPointWorth(20);
+        enemy.setHeight(37);
+        enemy.setWidth(24);
     }
 
     @Override
     public void visitBullet(BulletServerEntity bullet) {
-        bullet.setPointWorth(0);
+        bullet.setHeight(2);
+        bullet.setWidth(14);
     }
 
     @Override
     public void visitPlayer(PlayerServerEntity player) {
-        player.setPointWorth(0);
+        player.setHeight(38);
+        player.setWidth(25);
     }
 
     @Override
     public void visitShieldFragment(ShieldFragmentServerEntity shieldFragment) {
-        shieldFragment.setPointWorth(0);
+        shieldFragment.setHeight(10);
+        shieldFragment.setWidth(10);
     }
 
     @Override
     public void visit(Entity entity) {
-        entity.setPointWorth(0);
+        entity.setHeight(0);
+        entity.setWidth(0);
     }
 }
