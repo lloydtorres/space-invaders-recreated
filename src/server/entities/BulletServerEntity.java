@@ -1,6 +1,7 @@
 package server.entities;
 
 import common.EntityType;
+import server.visitors.Visitor;
 
 public class BulletServerEntity extends ServerEntity {
     private BulletSender bulletSender;
@@ -12,4 +13,8 @@ public class BulletServerEntity extends ServerEntity {
     public BulletSender getBulletSender() {
         return bulletSender;
     }
+
+    public void acceptVisitor(Visitor visitor){
+        visitor.visit(this);
+    };
 }

@@ -4,6 +4,8 @@ import common.EntityType;
 import common.MoveDirection;
 import server.entities.*;
 import server.entities.enemy.*;
+import server.visitors.PointSetterVisitor;
+import server.visitors.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,11 +69,15 @@ public class GameState implements StateSubject {
     }
 
     private void generateEnemies() {
+        Visitor pointVisitor = new PointSetterVisitor();
+
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 10; j++) {
                 int x = 160 + 45 * j;
                 int y = 100 + 29 * i;
+
                 ServerEntity serverEntity;
+
                 if (i == 0) {
                     serverEntity = new EliteEnemyDecorator(new EnemyServerEntity(x, y));
                 } else if (i < 3) {
@@ -79,6 +85,9 @@ public class GameState implements StateSubject {
                 } else {
                     serverEntity = new BasicEnemyDecorator(new EnemyServerEntity(x, y));
                 }
+
+                serverEntity.accept(pointVisitor);
+
                 enemyEntities.put(serverEntity.getId(), serverEntity);
                 notifyObservers(new EntityUpdateEvent(serverEntity, false));
             }
