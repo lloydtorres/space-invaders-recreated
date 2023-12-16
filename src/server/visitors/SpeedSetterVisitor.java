@@ -26,7 +26,7 @@ public class SpeedSetterVisitor implements Visitor{
     }
 
     @Override
-    public void visitStandartEnemy(StandardEnemyDecorator enemy) {
+    public void visitStandardEnemy(StandardEnemyDecorator enemy) {
         enemy.setSpeed(18, 24);
     }
 

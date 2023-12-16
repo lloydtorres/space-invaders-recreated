@@ -10,6 +10,6 @@ public class StandardEnemyDecorator extends EnemyDecorator {
 
     @Override
     public void accept(Visitor visitor) {
-        visitor.visitStandartEnemy(this);
+        visitor.visitStandardEnemy(this);
     }
 }

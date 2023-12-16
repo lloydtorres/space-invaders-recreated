@@ -10,7 +10,7 @@ public interface Visitor {
     void visitEnemy(EnemyServerEntity enemy);
     void visitBasicEnemy(BasicEnemyDecorator enemy);
     void visitEliteEnemy(EliteEnemyDecorator enemy);
-    void visitStandartEnemy(StandardEnemyDecorator enemy);
+    void visitStandardEnemy(StandardEnemyDecorator enemy);
     void visitBullet(BulletServerEntity bullet);
     void visitPlayer(PlayerServerEntity player);
     void visitShieldFragment(ShieldFragmentServerEntity shieldFragment);

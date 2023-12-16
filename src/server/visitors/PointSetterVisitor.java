@@ -20,7 +20,7 @@ public class PointSetterVisitor implements Visitor {
     public void visitEliteEnemy(EliteEnemyDecorator enemy) { enemy.setPointWorth(50); }
 
     @Override
-    public void visitStandartEnemy(StandardEnemyDecorator enemy) {
+    public void visitStandardEnemy(StandardEnemyDecorator enemy) {
         enemy.setPointWorth(20);
     }
 

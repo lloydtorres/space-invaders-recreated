@@ -30,7 +30,7 @@ public class DimensionSetterVisitor implements Visitor{
     }
 
     @Override
-    public void visitStandartEnemy(StandardEnemyDecorator enemy) {
+    public void visitStandardEnemy(StandardEnemyDecorator enemy) {
         enemy.setHeight(37);
         enemy.setWidth(24);
     }
