@@ -2,8 +2,7 @@ package server;
 
 import common.GameContext;
 import common.packets.Packet;
-import common.packets.ToServer.MovePacket;
-import common.packets.ToServer.ShootPacket;
+import common.packets.ToServer.*;
 
 // Many of these are left blank because server should never receive these packets from clients
 public class ServerGameContext implements GameContext {
@@ -22,6 +21,12 @@ public class ServerGameContext implements GameContext {
             case SHOOT:
                 processShotPacket((ShootPacket) packet);
                 break;
+            case STATE_SAVE:
+                processStateSavePacket((StateSavePacket) packet);
+                break;
+            case STATE_RESTORE:
+                processStateRestorePacket((StateRestorePacket) packet);
+                break;
         }
     }
     private void processMovePacket(MovePacket packet) {
@@ -32,5 +37,13 @@ public class ServerGameContext implements GameContext {
         gameState.shootFromPlayer(packet.getSenderId());
     }
 
+    private void processStateSavePacket(StateSavePacket packet){
+        GameLoop gameLoop = GameLoop.getInstance();
+        gameLoop.saveState();
+    }
 
+    private void processStateRestorePacket(StateRestorePacket packet){
+        GameLoop gameLoop = GameLoop.getInstance();
+        gameLoop.restoreState();
+    }
 }

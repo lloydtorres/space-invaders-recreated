@@ -10,5 +10,7 @@ public enum PacketType {
     ENTITY_UPDATE,
     ENTITY_REMOVE,
     SCORE_UPDATE,
-    LIVES_LEFT_UPDATE
+    LIVES_LEFT_UPDATE,
+    STATE_SAVE,
+    STATE_RESTORE
 }
