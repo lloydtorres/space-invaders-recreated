@@ -2,17 +2,17 @@ package server.entities.enemy;
 
 import common.EntityType;
 import server.entities.ServerEntity;
+import server.visitors.Visitor;
 
 public class EnemyServerEntity extends ServerEntity {
-    private final int pointWorth;
 
     public EnemyServerEntity(float X, float Y) {
-        super(EntityType.ENEMY, X, Y, 37, 24, 18, 24);
+        super(EntityType.ENEMY, X, Y);
         this.pointWorth = 5;
     }
 
     @Override
-    public int getPointWorth() {
-        return pointWorth;
+    public void accept(Visitor visitor) {
+        visitor.visitEnemy(this);
     }
 }

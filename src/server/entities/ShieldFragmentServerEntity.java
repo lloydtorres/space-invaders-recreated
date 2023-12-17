@@ -1,12 +1,13 @@
 package server.entities;
 
 import common.EntityType;
+import server.visitors.Visitor;
 
 public class ShieldFragmentServerEntity extends ServerEntity implements Cloneable {
     public Placeholder placeholder;
 
     public ShieldFragmentServerEntity(float X, float Y, Placeholder placeholder) {
-        super(EntityType.SHIELD, X, Y, 10, 10, 0, 0);
+        super(EntityType.SHIELD, X, Y);
         this.placeholder = placeholder;
     }
 
@@ -23,5 +24,10 @@ public class ShieldFragmentServerEntity extends ServerEntity implements Cloneabl
         ShieldFragmentServerEntity copy = this.shallowCopy();
         copy.placeholder = (Placeholder) this.placeholder.clone();
         return copy;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visitShieldFragment(this);
     }
 }

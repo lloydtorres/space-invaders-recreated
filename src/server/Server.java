@@ -13,6 +13,7 @@ import common.packets.PacketFactory;
 import common.packets.ToClient.*;
 import common.packets.Packet;
 import common.packets.builders.*;
+import server.entities.Entity;
 import server.entities.ServerEntity;
 
 // main server class. waits for client connections, assigns them their unique ids
@@ -107,7 +108,7 @@ public class Server {
         System.out.println("Singleton's hashcode: " + gameLoop.hashCode());
         int score = gameLoop.getState().getScore();
         int livesLeft = gameLoop.getState().getLivesLeft();
-        Map<Integer, ServerEntity> entities = gameLoop.getState().getAllEntities();
+        Map<Integer, Entity> entities = gameLoop.getState().getAllEntities();
         ClientHandler clientHandler = connectedPlayers.get(playerId).getClientHandler();
 
         ScoreUpdatePacket scoreUpdatePacket = new ScoreUpdatePacketBuilder()
@@ -122,7 +123,7 @@ public class Server {
                 .getResult();
         clientHandler.enqueuePacket(livesLeftUpdatePacket);
 
-        for (ServerEntity entity : entities.values()) {
+        for (Entity entity : entities.values()) {
             EntityUpdatePacket entityUpdatePacket = new EntityUpdatePacketBuilder()
                     .setSenderId(Configuration.SERVER_ID)
                     .setEntityId(entity.getId())
