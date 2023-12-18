@@ -42,6 +42,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private double timeStep;
     private int score = 0;
     private int livesLeft = 0;
+    private Random rnd;
 
     public Game(Client client, IPacketFactory packetFactory, int refreshRate, SoundPlayer soundPlayer) throws IOException, FontFormatException {
         super();
@@ -56,6 +57,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
         lastFrameTime = System.currentTimeMillis();
         timeStep = 1000.0 / refreshRate;
         inputHandler = new InputHandler();
+        rnd = new Random();
     }
 
     @Override
@@ -166,7 +168,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
     public void updateEntity(int id, EntityType entityType, int x, int y) {
         ClientEntity clientEntity = entities.get(id);
         if (clientEntity != null) {
-//            play move sound for player and enemy
+            String entitySound = clientEntity.getClientEntityType().moveSound();
+            if(entitySound != null && entitySound != "")
+                soundPlayer.play(ClientConfig.getFullSoundPath(entitySound));
             clientEntity.setX(x);
             clientEntity.setY(y);
             return;
@@ -177,7 +181,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
         switch (entityType) {
             case PLAYER:
                 drawStrategy = new PlayerDrawStrategy(playerColorizers[id % 5], "sprites/cannon.png");
-                moveSound = "PLAYER_MOVE";
+                moveSound = rnd.nextFloat() > 0.5 ? "PLAYER_MOVE_HIGH" : "PLAYER_MOVE_LOW";
                 break;
             case SHIELD:
                 drawStrategy = shieldDrawStrategy;
@@ -187,7 +191,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
                 break;
             case ENEMY:
                 drawStrategy = enemyDrawStrategy;
-                moveSound = "ENEMY_MOVE";
+                moveSound = rnd.nextFloat() > 0.5 ? "ENEMY_MOVE_HIGH" : "ENEMY_MOVE_LOW";
                 break;
         }
         ClientEntityType type = ClientFactory.getClientEntityType(entityType, moveSound);
