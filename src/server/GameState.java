@@ -306,6 +306,30 @@ public class GameState implements StateSubject {
         return entities;
     }
 
+    public Memento saveToMemento(){
+        return new Memento(this);
+    }
+
+    public void restoreFromMemento(Memento memento){
+        memento.Restore();
+    }
+
+    public Map<Integer, PlayerServerEntity> getPlayerEntities(){
+        return playerEntities;
+    }
+
+    public Map<Integer, Entity> getEnemyEntities(){
+        return enemyEntities;
+    }
+
+    public Map<Integer, BulletServerEntity> getBulletEntities(){
+        return bulletEntities;
+    }
+
+    public Map<Integer, ShieldFragmentServerEntity> getShieldFragmentEntities(){
+        return shieldFragmentEntities;
+    }
+
     public int getScore() {
         return score;
     }
@@ -314,4 +338,50 @@ public class GameState implements StateSubject {
         return livesLeft;
     }
 
+    public void setPlayerEntities(Map<Integer, PlayerServerEntity> playerEntities){
+        this.playerEntities = playerEntities;
+
+        //Redraw Player entities
+        for(Map.Entry<Integer,PlayerServerEntity> entry:playerEntities.entrySet()){
+            notifyObservers(new EntityUpdateEvent(entry.getValue(), false));
+        }
+        
+    }
+
+    public void setEnemyEntities(Map<Integer, Entity> enemyEntities){
+        this.enemyEntities = enemyEntities;
+
+        //Redraw Enemy entities
+        for(Map.Entry<Integer,Entity> entry:enemyEntities.entrySet()){
+            notifyObservers(new EntityUpdateEvent(entry.getValue(), false));
+        }
+    }
+
+    public void setBulletEntities(Map<Integer, BulletServerEntity> bulletEntities){
+        this.bulletEntities = bulletEntities;
+
+        //Redraw Bullet entities
+        for(Map.Entry<Integer,BulletServerEntity> entry:bulletEntities.entrySet()){
+            notifyObservers(new EntityUpdateEvent(entry.getValue(), false));
+        }
+    }
+
+    public void setShieldFragmentEntities(Map<Integer, ShieldFragmentServerEntity> shieldFragmentEntities){
+        this.shieldFragmentEntities = shieldFragmentEntities;
+
+        //Redraw Shield fragment entities
+        for(Map.Entry<Integer,ShieldFragmentServerEntity> entry:shieldFragmentEntities.entrySet()){
+            notifyObservers(new EntityUpdateEvent(entry.getValue(), false));
+        }
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+        notifyObservers(new ScoreUpdateEvent(score));
+    }
+
+    public void setLivesLeft(int livesLeft) {
+        this.livesLeft = livesLeft;
+        notifyObservers(new LivesLeftUpdateEvent(livesLeft));
+    }
 }

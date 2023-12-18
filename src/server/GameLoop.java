@@ -1,5 +1,7 @@
 package server;
 
+import java.util.Stack;
+
 import common.Configuration;
 
 public class GameLoop implements Runnable{
@@ -8,11 +10,14 @@ public class GameLoop implements Runnable{
     private final GameState state;
     private final double timeStep;
     private volatile boolean gameRunning;
+    private Stack<Memento> mementoStack;
+
     private GameLoop(){
         lastFrameTime = System.currentTimeMillis();
         timeStep = 1000.0 / Configuration.REFRESH_RATE;
         state = new GameState();
         gameRunning = false;
+        mementoStack = new Stack<Memento>();
     }
 
     public static synchronized GameLoop getInstance() {
@@ -43,6 +48,16 @@ public class GameLoop implements Runnable{
 
     public GameState getState() {
         return state;
+    }
+
+    public void saveState(){
+        mementoStack.push(state.saveToMemento());
+    }
+
+    public void restoreState(){
+        if(!mementoStack.isEmpty()){
+            state.restoreFromMemento(mementoStack.pop());
+        }
     }
 
     public boolean isGameRunning() {
