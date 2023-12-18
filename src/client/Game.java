@@ -39,6 +39,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private InputHandler inputHandler;
     private boolean isRunning;
     private long lastFrameTime;
+    private long lastSaveTime;
+    private long lastRestoreTime;
     private double timeStep;
     private int score = 0;
     private int livesLeft = 0;
@@ -53,6 +55,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
         setPreferredSize(new Dimension(770, 652));
         addKeyListener(this);
         lastFrameTime = System.currentTimeMillis();
+        lastSaveTime = System.currentTimeMillis();
+        lastRestoreTime = System.currentTimeMillis();
         timeStep = 1000.0 / refreshRate;
         inputHandler = new InputHandler();
     }
@@ -110,6 +114,24 @@ public class Game extends JPanel implements KeyListener, Runnable {
         if (keys[KeyEvent.VK_RIGHT]){
             inputHandler.setCommand(new MoveCommand(client, MoveDirection.RIGHT));
             inputHandler.handleInput();
+        }
+        if(keys[KeyEvent.VK_Z]){
+            long currentTime = System.currentTimeMillis();
+            long deltaTime = currentTime - lastSaveTime;
+            if(deltaTime > 1000){
+                inputHandler.setCommand(new StateSaveCommand(client));
+                inputHandler.handleInput();
+                lastSaveTime = currentTime;
+            }
+        }
+        if(keys[KeyEvent.VK_X]){
+            long currentTime = System.currentTimeMillis();
+            long deltaTime = currentTime - lastRestoreTime;
+            if(deltaTime > 1000){
+                inputHandler.setCommand(new StateRestoreCommand(client));
+                inputHandler.handleInput();
+                lastRestoreTime = currentTime;
+            }
         }
         if(keys[KeyEvent.VK_U]){
             inputHandler.undoLastCommand();
