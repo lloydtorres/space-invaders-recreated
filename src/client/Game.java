@@ -1,11 +1,13 @@
 package client;
 
+import client.particles.EnemyHitParticleSystem;
+import client.particles.ParticleSystemsManager;
+import client.particles.ShootParticleSystem;
 import client.strategies.*;
 import client.strategies.colorizer.*;
 import common.EntityType;
 import common.MoveDirection;
 import common.packets.IPacketFactory;
-import common.packets.Packet;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,18 +37,19 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private final Colorizer[] playerColorizers = {new WhiteColorizer(originalColor), new BlueColorizer(originalColor), new PinkColorizer(originalColor), new PurpleColorizer(originalColor), new YellowColorizer(originalColor)};
     private final EnemyDrawStrategy enemyDrawStrategy = new EnemyDrawStrategy(playerColorizers[0], "sprites/c11.png");
     private final Font scoreFont = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 40);
+    private ParticleSystemsManager particleSystemsManager;
     private final Map<Integer, ClientEntity> entities;
     private InputHandler inputHandler;
     private boolean isRunning;
-    private long lastFrameTime;
+    private long lastUpdateTimeVideo, lastUpdateTimeLogic;
     private long lastSaveTime;
     private long lastRestoreTime;
-    private double timeStep;
+    private double OPTIMAL_TIME_VIDEO, OPTIMAL_TIME_LOGIC;
     private int score = 0;
     private int livesLeft = 0;
     private Random rnd;
 
-    public Game(Client client, IPacketFactory packetFactory, int refreshRate, SoundPlayer soundPlayer) throws IOException, FontFormatException {
+    public Game(Client client, IPacketFactory packetFactory, int videoRefreshRate, int logicRefreshRate, SoundPlayer soundPlayer) throws IOException, FontFormatException {
         super();
         keys = new boolean[KeyEvent.KEY_LAST + 1];
         this.client = client;
@@ -56,12 +59,15 @@ public class Game extends JPanel implements KeyListener, Runnable {
         isRunning = true;
         setPreferredSize(new Dimension(770, 652));
         addKeyListener(this);
-        lastFrameTime = System.currentTimeMillis();
+        lastUpdateTimeVideo = System.nanoTime();
+        lastUpdateTimeLogic = System.nanoTime();
         lastSaveTime = System.currentTimeMillis();
         lastRestoreTime = System.currentTimeMillis();
-        timeStep = 1000.0 / refreshRate;
+        OPTIMAL_TIME_VIDEO = 1.0 / videoRefreshRate;
+        OPTIMAL_TIME_LOGIC = 1.0 / logicRefreshRate;
         inputHandler = new InputHandler();
         rnd = new Random();
+        particleSystemsManager = new ParticleSystemsManager();
     }
 
     @Override
@@ -69,6 +75,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         drawBackground(g2d);
+        drawParticleSystems(g2d);
         drawEntities(g2d);
         drawLivesLeft(g2d);
         drawScore(g2d);
@@ -76,14 +83,19 @@ public class Game extends JPanel implements KeyListener, Runnable {
 
     public void loop() {
         while (isRunning) {
-            long currentTime = System.currentTimeMillis();
-            long deltaTime = currentTime - lastFrameTime;
-            if (deltaTime < timeStep) {
+            long now = System.nanoTime();
+            double deltaTimeVideo = (now - lastUpdateTimeVideo) / 1e9;
+            double deltaTimeLogic = (now - lastUpdateTimeLogic) / 1e9;
+            if(deltaTimeLogic > OPTIMAL_TIME_LOGIC){
+                processInput();
+                lastUpdateTimeLogic = now;
+            }
+            if (deltaTimeVideo < OPTIMAL_TIME_VIDEO) {
                 continue;
             }
-            processInput();
+            lastUpdateTimeVideo = now;
+            particleSystemsManager.update(deltaTimeVideo);
             repaint();
-            lastFrameTime = currentTime;
         }
     }
 
@@ -175,6 +187,10 @@ public class Game extends JPanel implements KeyListener, Runnable {
         return;
     }
 
+    private void drawParticleSystems(Graphics2D graphics){
+        particleSystemsManager.draw(graphics);
+    }
+
     public void updateScore(int newScore) {
         score = newScore;
         soundPlayer.stop();
@@ -216,6 +232,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
                 moveSound = rnd.nextFloat() > 0.5 ? "ENEMY_MOVE_HIGH" : "ENEMY_MOVE_LOW";
                 break;
         }
+        if(entityType == EntityType.BULLET)
+            particleSystemsManager.addSystem(new ShootParticleSystem(x, y, 50, rnd, Color.ORANGE, Color.CYAN, 8, 80));
         ClientEntityType type = ClientFactory.getClientEntityType(entityType, moveSound);
         clientEntity = new ClientEntity(id, x, y, type);
         clientEntity.setDrawStrategy(drawStrategy);
@@ -227,6 +245,10 @@ public class Game extends JPanel implements KeyListener, Runnable {
     }
 
     public void removeEntity(int id) {
+        ClientEntity entity = entities.get(id);
+        if(entity.getClientEntityType().entityType() == EntityType.ENEMY){
+            particleSystemsManager.addSystem(new EnemyHitParticleSystem(entity.getX(), entity.getY(), 60, rnd, Color.RED, 10, 60));
+        }
         entities.remove(id);
     }
 

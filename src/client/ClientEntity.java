@@ -35,6 +35,14 @@ public class ClientEntity {
         this.y = y;
     }
 
+    public int getY() {
+        return y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
     public ClientEntityType getClientEntityType() {
         return clientEntityType;
     }
