@@ -3,7 +3,9 @@ package server;
 import common.EntityType;
 import common.MoveDirection;
 import server.entities.*;
-import server.entities.enemy.*;
+import server.entities.enemy.enemyGenerator.EnemyEntityGenerator;
+import server.entities.enemy.enemyGenerator.ProxyEnemyEntityGenerator;
+import server.entities.enemy.enemyGenerator.RealEnemyEntityGenerator;
 import server.visitors.DimensionSetterVisitor;
 import server.visitors.PointSetterVisitor;
 import server.visitors.SpeedSetterVisitor;
@@ -35,6 +37,8 @@ public class GameState implements StateSubject {
     private int score = 0;
     private final Visitor pointVisitor, dimensionSetterVisitor, speedSetterVisitor;
 
+    private final EnemyEntityGenerator enemyEntityGenerator;
+
     public GameState() {
         playerEntities = new ConcurrentHashMap<>();
         enemyEntities = new ConcurrentHashMap<>();
@@ -46,6 +50,7 @@ public class GameState implements StateSubject {
         pointVisitor = new PointSetterVisitor();
         dimensionSetterVisitor = new DimensionSetterVisitor();
         speedSetterVisitor = new SpeedSetterVisitor();
+        enemyEntityGenerator = new ProxyEnemyEntityGenerator(new RealEnemyEntityGenerator());
     }
 
     @Override
@@ -80,15 +85,7 @@ public class GameState implements StateSubject {
                 int x = 160 + 45 * j;
                 int y = 100 + 29 * i;
 
-                Entity enemyEntity;
-
-                if (i == 0) {
-                    enemyEntity = new EliteEnemyDecorator(new EnemyServerEntity(x, y));
-                } else if (i < 3) {
-                    enemyEntity = new StandardEnemyDecorator(new EnemyServerEntity(x, y));
-                } else {
-                    enemyEntity = new BasicEnemyDecorator(new EnemyServerEntity(x, y));
-                }
+                Entity enemyEntity = enemyEntityGenerator.generateEnemy(i, x, y);
 
                 enemyEntity.accept(dimensionSetterVisitor);
                 enemyEntity.accept(pointVisitor);
