@@ -23,7 +23,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 
     private final boolean[] keys; // holds keyboard input
     private final File ttf = new File("fonts/visitor.ttf"); // font used to draw score, etc.
-//    private final Font fontL = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 150); // various font sizes
+    //    private final Font fontL = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 150); // various font sizes
 //    private final Font fontM = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 100);
 //    private final Font fontS = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 40);
     private final Client client;
@@ -34,7 +34,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private final Color originalColor = new Color(0, 255, 0);
     private final Colorizer[] playerColorizers = {new WhiteColorizer(originalColor), new BlueColorizer(originalColor), new PinkColorizer(originalColor), new PurpleColorizer(originalColor), new YellowColorizer(originalColor)};
     private final EnemyDrawStrategy enemyDrawStrategy = new EnemyDrawStrategy(playerColorizers[0], "sprites/c11.png");
-    private final Font scoreFont = Font.createFont(Font.TRUETYPE_FONT,ttf).deriveFont(Font.PLAIN,40);
+    private final Font scoreFont = Font.createFont(Font.TRUETYPE_FONT, ttf).deriveFont(Font.PLAIN, 40);
     private final Map<Integer, ClientEntity> entities;
     private InputHandler inputHandler;
     private boolean isRunning;
@@ -44,6 +44,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
     private double timeStep;
     private int score = 0;
     private int livesLeft = 0;
+    private Random rnd;
+
     public Game(Client client, IPacketFactory packetFactory, int refreshRate, SoundPlayer soundPlayer) throws IOException, FontFormatException {
         super();
         keys = new boolean[KeyEvent.KEY_LAST + 1];
@@ -59,7 +61,9 @@ public class Game extends JPanel implements KeyListener, Runnable {
         lastRestoreTime = System.currentTimeMillis();
         timeStep = 1000.0 / refreshRate;
         inputHandler = new InputHandler();
+        rnd = new Random();
     }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -70,8 +74,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
         drawScore(g2d);
     }
 
-    public void loop(){
-        while(isRunning){
+    public void loop() {
+        while (isRunning) {
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - lastFrameTime;
             if (deltaTime < timeStep) {
@@ -102,16 +106,16 @@ public class Game extends JPanel implements KeyListener, Runnable {
         keys[e.getKeyCode()] = false;
     }
 
-    public void processInput(){
-        if(keys[KeyEvent.VK_SPACE]){
+    public void processInput() {
+        if (keys[KeyEvent.VK_SPACE]) {
             inputHandler.setCommand(new ShootCommand(client));
             inputHandler.handleInput();
         }
-        if (keys[KeyEvent.VK_LEFT]){
+        if (keys[KeyEvent.VK_LEFT]) {
             inputHandler.setCommand(new MoveCommand(client, MoveDirection.LEFT));
             inputHandler.handleInput();
         }
-        if (keys[KeyEvent.VK_RIGHT]){
+        if (keys[KeyEvent.VK_RIGHT]) {
             inputHandler.setCommand(new MoveCommand(client, MoveDirection.RIGHT));
             inputHandler.handleInput();
         }
@@ -133,11 +137,12 @@ public class Game extends JPanel implements KeyListener, Runnable {
                 lastRestoreTime = currentTime;
             }
         }
-        if(keys[KeyEvent.VK_U]){
+        if (keys[KeyEvent.VK_U]) {
             inputHandler.undoLastCommand();
         }
 
     }
+
     private void drawBackground(Graphics2D graphics) {
         graphics.setColor(Color.BLACK);
         graphics.fillRect(0, 0, 770, 652);
@@ -145,53 +150,60 @@ public class Game extends JPanel implements KeyListener, Runnable {
         graphics.fillRect(0, 32, 770, 3);
     }
 
-    private void drawEntities(Graphics2D graphics){
-        for (ClientEntity entity : entities.values()){
+    private void drawEntities(Graphics2D graphics) {
+        for (ClientEntity entity : entities.values()) {
             entity.draw(graphics);
         }
     }
-    private void drawLivesLeft(Graphics2D graphics){
+
+    private void drawLivesLeft(Graphics2D graphics) {
         graphics.setColor(Color.WHITE);
         graphics.setFont(scoreFont);
-        graphics.drawString("LIVES x " + livesLeft,487,26);
+        graphics.drawString("LIVES x " + livesLeft, 487, 26);
         return;
     }
-    private void drawScore(Graphics2D graphics){
+
+    private void drawScore(Graphics2D graphics) {
         graphics.setColor(Color.WHITE);
         graphics.setFont(scoreFont);
 
         String pointString = "SCORE: " + score;
-        if (pointString.length() > 19){ // prevents score from overflowing on screen
+        if (pointString.length() > 19) { // prevents score from overflowing on screen
             pointString = "SCORE: inf";
         }
-        graphics.drawString(pointString,27,26);
+        graphics.drawString(pointString, 27, 26);
         return;
     }
-    public void updateScore(int newScore){
+
+    public void updateScore(int newScore) {
         score = newScore;
         soundPlayer.stop();
         soundPlayer.play(ClientConfig.getFullSoundPath("ALIEN_HIT"));
     }
 
-    public void updateLivesLeft(int newLivesLeft){
+    public void updateLivesLeft(int newLivesLeft) {
         livesLeft = newLivesLeft;
         soundPlayer.stop();
         soundPlayer.play(ClientConfig.getFullSoundPath("PLAYER_HIT"));
     }
 
-    public void updateEntity(int id, EntityType entityType, int x, int y){
+    public void updateEntity(int id, EntityType entityType, int x, int y) {
         ClientEntity clientEntity = entities.get(id);
-        if(clientEntity != null){
+        if (clientEntity != null) {
+            String entitySound = clientEntity.getClientEntityType().moveSound();
+            if(entitySound != null && entitySound != "")
+                soundPlayer.play(ClientConfig.getFullSoundPath(entitySound));
             clientEntity.setX(x);
             clientEntity.setY(y);
             return;
         }
         //if client entity was not found
-        clientEntity = new ClientEntity(id, x, y);
         DrawStrategy drawStrategy = null;
-        switch (entityType){
+        String moveSound = "";
+        switch (entityType) {
             case PLAYER:
-                drawStrategy = new PlayerDrawStrategy(playerColorizers[id % 5], "sprites/cannon.png");;
+                drawStrategy = new PlayerDrawStrategy(playerColorizers[id % 5], "sprites/cannon.png");
+                moveSound = rnd.nextFloat() > 0.5 ? "PLAYER_MOVE_HIGH" : "PLAYER_MOVE_LOW";
                 break;
             case SHIELD:
                 drawStrategy = shieldDrawStrategy;
@@ -201,20 +213,24 @@ public class Game extends JPanel implements KeyListener, Runnable {
                 break;
             case ENEMY:
                 drawStrategy = enemyDrawStrategy;
+                moveSound = rnd.nextFloat() > 0.5 ? "ENEMY_MOVE_HIGH" : "ENEMY_MOVE_LOW";
                 break;
         }
+        ClientEntityType type = ClientFactory.getClientEntityType(entityType, moveSound);
+        clientEntity = new ClientEntity(id, x, y, type);
         clientEntity.setDrawStrategy(drawStrategy);
         entities.put(id, clientEntity);
-        if(entityType == EntityType.BULLET){
+        if (entityType == EntityType.BULLET) {
             soundPlayer.stop();
             soundPlayer.play(ClientConfig.getFullSoundPath("PLAYER_SHOOT"));
         }
     }
-    public void removeEntity(int id){
+
+    public void removeEntity(int id) {
         entities.remove(id);
     }
 
-//    private void sendInputData(){
+    //    private void sendInputData(){
 //        Packet packetToSend = packetFactory.getPacket(client.getThisPlayer().getId(), keys);
 //        if(packetToSend != null){
 //            client.sendPacket(packetToSend);
@@ -267,9 +283,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 //    }
 
 
-
     // draws the background
-
 
 
     // draws the pause overlay
