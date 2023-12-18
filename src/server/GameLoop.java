@@ -56,7 +56,7 @@ public class GameLoop implements Runnable{
 
     public void restoreState(){
         if(!mementoStack.isEmpty()){
-            state.restoreFromMemento(mementoStack.pop());
+            mementoStack.pop().Restore();
         }
     }
 

@@ -310,10 +310,6 @@ public class GameState implements StateSubject {
         return new Memento(this);
     }
 
-    public void restoreFromMemento(Memento memento){
-        memento.Restore();
-    }
-
     public Map<Integer, PlayerServerEntity> getPlayerEntities(){
         return playerEntities;
     }
