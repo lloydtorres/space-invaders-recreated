@@ -12,22 +12,22 @@ import server.entities.enemy.StandardEnemyDecorator;
 public class SpeedSetterVisitor implements Visitor{
     @Override
     public void visitEnemy(EnemyServerEntity enemy) {
-        enemy.setSpeed(18, 24);
+        enemy.setSpeed(22.5f, 29);
     }
 
     @Override
     public void visitBasicEnemy(BasicEnemyDecorator enemy) {
-        enemy.setSpeed(18, 24);
+        enemy.setSpeed(22.5f, 29);
     }
 
     @Override
     public void visitEliteEnemy(EliteEnemyDecorator enemy) {
-        enemy.setSpeed(18, 24);
+        enemy.setSpeed(22.5f, 29);
     }
 
     @Override
     public void visitStandardEnemy(StandardEnemyDecorator enemy) {
-        enemy.setSpeed(18, 24);
+        enemy.setSpeed(22.5f, 29);
     }
 
     @Override

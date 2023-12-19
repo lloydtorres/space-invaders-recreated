@@ -2,6 +2,8 @@ package server.entities;
 
 import common.EntityType;
 import common.MoveDirection;
+import server.entities.enemy.enemyStates.State;
+import server.entities.enemy.enemyStates.WaitState;
 import server.visitors.Visitor;
 
 public class ServerEntity implements Entity{
@@ -10,6 +12,7 @@ public class ServerEntity implements Entity{
     private float X, Y;
     private float XSpeed, YSpeed;
     private float width, height;
+    private State state;
     private final EntityType entityType;
     protected int pointWorth;
 
@@ -18,6 +21,7 @@ public class ServerEntity implements Entity{
         this.id = idCounter++;
         this.X = X;
         this.Y = Y;
+        state = new WaitState(this, MoveDirection.RIGHT, 6, MoveDirection.UP);
     }
 
     public ServerEntity(ServerEntity serverEntity) {
@@ -45,6 +49,14 @@ public class ServerEntity implements Entity{
                 Y += YSpeed;
                 break;
         }
+    }
+
+    public void setState(State state){
+        this.state = state;
+    }
+
+    public void process(){
+        state.Handle();
     }
 
     @Override

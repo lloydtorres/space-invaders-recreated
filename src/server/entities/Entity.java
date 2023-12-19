@@ -2,6 +2,7 @@ package server.entities;
 import common.EntityType;
 import common.MoveDirection;
 import server.visitors.Visitor;
+import server.entities.enemy.enemyStates.State;
 
 public interface Entity {
     EntityType getEntityType();
@@ -21,6 +22,8 @@ public interface Entity {
     void setPointWorth(int points);
     boolean intersects(Entity other);
     void move(MoveDirection direction);
+    void process();
+    void setState(State state);
 
     void setSpeed(float XSpeed, float YSpeed);
 

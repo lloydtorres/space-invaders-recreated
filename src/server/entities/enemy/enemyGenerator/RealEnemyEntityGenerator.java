@@ -5,6 +5,7 @@ import server.entities.enemy.BasicEnemyDecorator;
 import server.entities.enemy.EliteEnemyDecorator;
 import server.entities.enemy.EnemyServerEntity;
 import server.entities.enemy.StandardEnemyDecorator;
+import server.entities.enemy.enemyStates.WaitState;
 
 public class RealEnemyEntityGenerator implements EnemyEntityGenerator {
     @Override

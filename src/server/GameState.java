@@ -135,7 +135,10 @@ public class GameState implements StateSubject {
     }
 
     public void moveEnemies() {
-        return;
+        for (Entity entity : enemyEntities.values()){
+            entity.process();
+            notifyObservers(new EntityUpdateEvent(entity, false));
+        }
     }
 
     public void shootFromEnemy(int enemyId) {
